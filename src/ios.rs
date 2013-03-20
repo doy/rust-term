@@ -1,4 +1,4 @@
-use core::libc::c_int;
+use core::libc::{c_int,c_uint};
 
 pub fn cooked () -> int {
     unsafe { c::cooked() as int }
@@ -23,6 +23,15 @@ pub fn preserve<T> (body: &fn () -> T) -> T {
 
 pub fn isatty() -> bool {
     unsafe { c_isatty(0) as bool }
+}
+
+pub fn size() -> (uint, uint) {
+    let rows: c_uint = 0;
+    let cols: c_uint = 0;
+    unsafe {
+        c::size(&rows, &cols)
+    }
+    (rows as uint, cols as uint)
 }
 
 enum struct_termios {}
@@ -50,6 +59,8 @@ extern mod c {
 
     fn get() -> *struct_termios;
     fn set(t: *struct_termios);
+
+    fn size(rows: *c_uint, cols: *c_uint);
 }
 
 extern {

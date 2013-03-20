@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <termios.h>
+#include <sys/ioctl.h>
 
 /* very simplistic, ignores a lot of the settings that i don't understand,
  * patches welcome */
@@ -86,4 +87,12 @@ void set(struct termios *t)
 
     tcsetattr(0, TCSANOW, t);
     free(t);
+}
+
+void size(unsigned int *rows, unsigned int *cols)
+{
+    struct winsize ws;
+    ioctl(0, TIOCGWINSZ, &ws);
+    *rows = ws.ws_row;
+    *cols = ws.ws_col;
 }
