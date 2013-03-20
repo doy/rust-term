@@ -12,8 +12,7 @@ fn loop_chars () {
 }
 
 fn main () {
-    {
-        let preserve = term::ios::PreserveTermios();
+    do term::ios::preserve {
         term::ios::raw();
         loop_chars();
     }

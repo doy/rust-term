@@ -2,11 +2,11 @@ use core::libc::c_int;
 
 enum struct_termios {}
 
-pub struct PreserveTermios {
+struct PreserveTermios {
     priv state: *struct_termios,
 }
 
-pub fn PreserveTermios () -> ~PreserveTermios {
+fn PreserveTermios () -> ~PreserveTermios {
     ~PreserveTermios { state: unsafe { c::get() } }
 }
 
@@ -41,4 +41,9 @@ pub fn raw () -> bool {
 
 pub fn echo (enable: bool) -> bool {
     unsafe { c::echo(enable as c_int) as bool }
+}
+
+pub fn preserve<T> (body: &fn () -> T) -> T {
+    let _guard = PreserveTermios();
+    body()
 }
