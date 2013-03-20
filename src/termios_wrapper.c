@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <termios.h>
 
 /* very simplistic, ignores a lot of the settings that i don't understand,
@@ -62,4 +63,26 @@ int echo(int enabled)
     }
 
     return tcsetattr(0, TCSANOW, &t) == 0;
+}
+
+struct termios *get()
+{
+    struct termios *t;
+
+    t = malloc(sizeof(struct termios));
+    if (tcgetattr(0, t) == -1) {
+        return NULL;
+    }
+
+    return t;
+}
+
+void set(struct termios *t)
+{
+    if (t == NULL) {
+        return;
+    }
+
+    tcsetattr(0, TCSANOW, t);
+    free(t);
 }
