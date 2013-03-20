@@ -1,27 +1,31 @@
 RUSTC = rustc
-SRC   = src
 
-MAIN_SOURCE = $(SRC)/term.rs
-OTHER_SOURCES = $(SRC)/ios.rs $(SRC)/info.rs
+MAIN_SOURCE = src/term.rs
+OTHER_SOURCES = src/ios.rs src/info.rs
+TESTS = bin/termios
 
 all: build tests
 
-build: built
+build: lib/built
 
-tests: build
+tests: $(TESTS)
 
-built: $(MAIN_SOURCE) $(OTHER_SOURCES) libtermios_wrapper.a
-	$(RUSTC) --out-dir . -L . $(MAIN_SOURCE) && touch built
+bin/%: test/%.rs
+	@mkdir -p bin
+	$(RUSTC) --out-dir bin -L lib $<
 
-libtermios_wrapper.a: termios_wrapper.o
-	ar cr libtermios_wrapper.a termios_wrapper.o
+lib/built: $(MAIN_SOURCE) $(OTHER_SOURCES) tmp/libtermios_wrapper.a
+	@mkdir -p lib
+	$(RUSTC) --out-dir lib -L tmp $(MAIN_SOURCE) && touch tmp/built
 
-termios_wrapper.o: $(SRC)/termios_wrapper.c
-	cc -c $<
+tmp/libtermios_wrapper.a: tmp/termios_wrapper.o
+	ar cr tmp/libtermios_wrapper.a tmp/termios_wrapper.o
+
+tmp/termios_wrapper.o: src/termios_wrapper.c
+	@mkdir -p tmp
+	cc -fPIC -c -o $@ $<
 
 clean:
-	rm -f termios_wrapper.o libtermios_wrapper.a
-	rm -f libterm-*.so
-	rm -f built
+	-@rm -rf lib/ bin/ tmp/
 
-.PHONY: clean build tests default
+.PHONY: all clean build tests default

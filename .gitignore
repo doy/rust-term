@@ -1,4 +1,5 @@
-built
+tmp/built
 *.so
 *.o
 *.a
+bin/
