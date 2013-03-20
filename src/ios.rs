@@ -27,20 +27,20 @@ extern mod c {
     fn set(t: *struct_termios);
 }
 
-pub fn cooked () -> bool {
-    unsafe { c::cooked() as bool }
+pub fn cooked () -> int {
+    unsafe { c::cooked() as int }
 }
 
-pub fn cbreak () -> bool {
-    unsafe { c::cbreak() as bool }
+pub fn cbreak () -> int {
+    unsafe { c::cbreak() as int }
 }
 
-pub fn raw () -> bool {
-    unsafe { c::raw() as bool }
+pub fn raw () -> int {
+    unsafe { c::raw() as int }
 }
 
-pub fn echo (enable: bool) -> bool {
-    unsafe { c::echo(enable as c_int) as bool }
+pub fn echo (enable: bool) -> int {
+    unsafe { c::echo(enable as c_int) as int }
 }
 
 pub fn preserve<T> (body: &fn () -> T) -> T {
