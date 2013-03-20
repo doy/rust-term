@@ -2,7 +2,7 @@ RUSTC = rustc
 
 MAIN_SOURCE = src/term.rs
 OTHER_SOURCES = src/ios.rs src/info.rs
-TESTS = bin/termios bin/termios2
+TESTS = bin/termios bin/termios2 bin/termios3
 
 all: build tests
 

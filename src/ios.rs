@@ -27,6 +27,11 @@ extern mod c {
     fn set(t: *struct_termios);
 }
 
+extern {
+    #[link_name = "isatty"]
+    fn c_isatty(fd: c_int) -> c_int;
+}
+
 pub fn cooked () -> int {
     unsafe { c::cooked() as int }
 }
@@ -46,4 +51,8 @@ pub fn echo (enable: bool) -> int {
 pub fn preserve<T> (body: &fn () -> T) -> T {
     let _guard = PreserveTermios();
     body()
+}
+
+pub fn isatty() -> bool {
+    unsafe { c_isatty(0) as bool }
 }
