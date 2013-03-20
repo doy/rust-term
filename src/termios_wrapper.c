@@ -29,7 +29,3 @@ int echo(int enabled)
 
     return tcsetattr(0, TCSANOW, &t) == 0;
 }
-
-int crlf(int enabled)
-{
-}

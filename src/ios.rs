@@ -6,7 +6,6 @@ extern mod c {
     fn cbreak () -> c_int;
     fn raw () -> c_int;
     fn echo (enable: c_int) -> c_int;
-    fn crlf (enable: c_int) -> c_int;
 }
 
 pub fn cooked () -> bool {
@@ -23,8 +22,4 @@ pub fn raw () -> bool {
 
 pub fn echo (enable: bool) -> bool {
     unsafe { c::echo(enable as c_int) as bool }
-}
-
-pub fn crlf (enable: bool) -> bool {
-    unsafe { c::crlf(enable as c_int) as bool }
 }
