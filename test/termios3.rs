@@ -1,8 +1,8 @@
 extern mod term;
 
 fn main () {
-    if term::ios::isatty() {
-        let (cols, rows) = term::ios::size();
+    if term::isatty() {
+        let (cols, rows) = term::size();
         io::println(fmt!("tty: %d %d", cols as int, rows as int));
     }
     else {

@@ -29,11 +29,11 @@ fn draw_ground (x: uint, y: uint) {
 }
 
 fn main () {
-    let (cols, rows) = term::ios::size();
+    let (cols, rows) = term::size();
 
     do term_app {
-        term::ios::cbreak();
-        term::ios::echo(false);
+        term::cbreak();
+        term::echo(false);
         term::info::clear();
 
         draw_map(rows, cols);
