@@ -39,6 +39,7 @@ fn main () {
         draw_map(rows, cols);
 
         let mut (x, y) = (0u, 0u);
+        let mut cursor = true;
         loop {
             draw_character(x, y);
             match io::stdin().read_char() {
@@ -47,6 +48,7 @@ fn main () {
                 'j' if y < rows - 1 => { draw_ground(x, y); y += 1 }
                 'k' if y > 0        => { draw_ground(x, y); y -= 1 }
                 'l' if x < cols - 1 => { draw_ground(x, y); x += 1 }
+                ' ' => { term::info::cursor(cursor); cursor = !cursor }
                 _   => { }
             }
         }

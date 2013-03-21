@@ -17,23 +17,6 @@ pub fn move (col: uint, row: uint) {
     }
 }
 
-/*
-pub fn color_name (name: &str) -> u8 {
-}
-
-pub fn color_rgb (r: u8, g: u8, b: u8) -> u8 {
-}
-
-pub fn color (color: u8) {
-}
-
-pub fn bold (enabled: bool) {
-}
-
-pub fn reverse (enabled: bool) {
-}
-*/
-
 pub fn cursor (enabled: bool) {
     if enabled {
         write_escape("civis");
