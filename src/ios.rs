@@ -26,12 +26,12 @@ pub fn isatty() -> bool {
 }
 
 pub fn size() -> (uint, uint) {
-    let rows: c_uint = 0;
     let cols: c_uint = 0;
+    let rows: c_uint = 0;
     unsafe {
-        c::size(&rows, &cols)
+        c::size(&cols, &rows)
     }
-    (rows as uint, cols as uint)
+    (cols as uint, rows as uint)
 }
 
 enum struct_termios {}
@@ -60,7 +60,7 @@ extern mod c {
     fn get() -> *struct_termios;
     fn set(t: *struct_termios);
 
-    fn size(rows: *c_uint, cols: *c_uint);
+    fn size(cols: *c_uint, rows: *c_uint);
 }
 
 extern {

@@ -29,7 +29,7 @@ fn draw_ground (x: uint, y: uint) {
 }
 
 fn main () {
-    let (rows, cols) = term::ios::size();
+    let (cols, rows) = term::ios::size();
 
     do term_app {
         term::ios::cbreak();

@@ -89,10 +89,10 @@ void set(struct termios *t)
     free(t);
 }
 
-void size(unsigned int *rows, unsigned int *cols)
+void size(unsigned int *cols, unsigned int *rows)
 {
     struct winsize ws;
     ioctl(0, TIOCGWINSZ, &ws);
-    *rows = ws.ws_row;
     *cols = ws.ws_col;
+    *rows = ws.ws_row;
 }
