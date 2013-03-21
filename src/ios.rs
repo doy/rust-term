@@ -1,4 +1,5 @@
 use core::libc::{c_int,c_uint};
+use util::guard;
 
 pub fn cooked () -> int {
     unsafe { c::cooked() as int }
@@ -17,8 +18,10 @@ pub fn echo (enable: bool) -> int {
 }
 
 pub fn preserve<T> (body: &fn () -> T) -> T {
-    let _guard = PreserveTermios();
-    body()
+    let orig = unsafe { c::get() };
+    do guard(|| { unsafe { c::set(orig) } }) {
+        body()
+    }
 }
 
 pub fn isatty() -> bool {
@@ -35,20 +38,6 @@ pub fn size() -> (uint, uint) {
 }
 
 enum struct_termios {}
-
-struct PreserveTermios {
-    priv state: *struct_termios,
-}
-
-fn PreserveTermios () -> ~PreserveTermios {
-    ~PreserveTermios { state: unsafe { c::get() } }
-}
-
-impl Drop for PreserveTermios {
-    fn finalize (&self) {
-        unsafe { c::set(self.state) }
-    }
-}
 
 #[link_name = "termios_wrapper"]
 extern mod c {
