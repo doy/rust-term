@@ -6,15 +6,15 @@ TESTS = bin/termios bin/termios2 bin/termios3 bin/rl
 
 all: build tests
 
-build: lib/built
+build: tmp/built
 
 tests: $(TESTS)
 
-bin/%: test/%.rs
+bin/%: test/%.rs tmp/built
 	@mkdir -p bin
 	$(RUSTC) --out-dir bin -L lib $<
 
-lib/built: $(MAIN_SOURCE) $(OTHER_SOURCES) tmp/libtermios_wrapper.a tmp/libcurses_helper.a
+tmp/built: $(MAIN_SOURCE) $(OTHER_SOURCES) tmp/libtermios_wrapper.a tmp/libcurses_helper.a
 	@mkdir -p lib
 	$(RUSTC) --out-dir lib -L tmp $(MAIN_SOURCE) && touch tmp/built
 
