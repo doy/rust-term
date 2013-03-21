@@ -1,0 +1,10 @@
+color
+ - by number, name, rgb
+attributes
+ - standout, underline, reverse, blink, bold
+scroll regions
+output buffering
+input
+ - mouse?
+line drawing
+fallbacks for terminals that don't support these capabilities
