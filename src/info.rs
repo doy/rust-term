@@ -1,4 +1,5 @@
 use core::libc::{c_char,c_int};
+use util::guard;
 
 pub fn init () {
     unsafe { c::setupterm(ptr::null(), 1, ptr::null()) };
@@ -27,10 +28,10 @@ pub fn cursor (enabled: bool) {
 }
 
 pub fn with_alternate_screen<T> (body: &fn () -> T) -> T {
-    write_escape("smcup");
-    let ret = body();
-    write_escape("rmcup");
-    ret
+    do guard(|| { write_escape("rmcup") }) {
+        write_escape("smcup");
+        body()
+    }
 }
 
 fn write_escape (name: &str) {
