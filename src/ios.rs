@@ -24,10 +24,6 @@ pub fn preserve<T> (body: &fn () -> T) -> T {
     }
 }
 
-pub fn isatty() -> bool {
-    unsafe { c_isatty(0) as bool }
-}
-
 pub fn size() -> (uint, uint) {
     let cols: c_uint = 0;
     let rows: c_uint = 0;
@@ -50,9 +46,4 @@ extern mod c {
     fn set(t: *struct_termios);
 
     fn size(cols: *c_uint, rows: *c_uint);
-}
-
-extern {
-    #[link_name = "isatty"]
-    fn c_isatty(fd: c_int) -> c_int;
 }

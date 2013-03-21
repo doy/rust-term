@@ -2,7 +2,9 @@
 
 #[crate_type = "lib"];
 
-pub use ios::{cooked,cbreak,raw,echo,size,isatty};
+use core::libc::c_int;
+
+pub use ios::{cooked,cbreak,raw,echo,size};
 use info::{init,escape,escape2};
 
 struct Writer {
@@ -62,6 +64,15 @@ impl Drop for Writer {
     }
 }
 
+pub fn isatty() -> bool {
+    unsafe { c_isatty(0) as bool }
+}
+
 pub mod ios;
 pub mod info;
 mod util;
+
+extern {
+    #[link_name = "isatty"]
+    fn c_isatty(fd: c_int) -> c_int;
+}
