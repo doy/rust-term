@@ -1,55 +1,23 @@
 use core::libc::{c_char,c_int};
-use util::guard;
 
 pub fn init () {
     unsafe { c::setupterm(ptr::null(), 1, ptr::null()) };
 }
 
-pub fn clear () {
-    write_escape("clear");
-}
-
-pub fn move (col: uint, row: uint) {
-    if col == 0u && row == 0u {
-        write_escape("home");
-    }
-    else {
-        write_escape2("cup", row as int, col as int);
-    }
-}
-
-pub fn cursor (enabled: bool) {
-    if enabled {
-        write_escape("civis");
-    }
-    else {
-        write_escape("cnorm");
-    }
-}
-
-pub fn with_alternate_screen<T> (body: &fn () -> T) -> T {
-    do guard(|| { write_escape("rmcup") }) {
-        write_escape("smcup");
-        body()
-    }
-}
-
-fn write_escape (name: &str) {
-    let output = do str::as_c_str(name) |c_name| {
+pub fn escape (name: &str) -> ~str {
+    do str::as_c_str(name) |c_name| {
         unsafe {
             str::raw::from_c_str(tigetstr(c_name))
         }
-    };
-    io::print(output);
+    }
 }
 
-fn write_escape2 (name: &str, p1: int, p2: int) {
-    let output = do str::as_c_str(name) |c_name| {
+pub fn escape2 (name: &str, p1: int, p2: int) -> ~str {
+    do str::as_c_str(name) |c_name| {
         unsafe {
             str::raw::from_c_str(tiparm2(tigetstr(c_name), p1, p2))
         }
-    };
-    io::print(output);
+    }
 }
 
 unsafe fn tigetstr (name: *c_char) -> *c_char {
