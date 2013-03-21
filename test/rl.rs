@@ -1,11 +1,11 @@
 extern mod term;
 use core::io::ReaderUtil;
 
-fn term_app (body: &fn (w: &mut term::Writer)) {
-    let mut writer = term::Writer(true);
+fn term_app (body: &fn (w: &term::Writer)) {
+    let writer = term::Writer(true);
     do term::ios::preserve {
         writer.alternate_screen(true);
-        body(&mut writer);
+        body(&writer);
     }
 }
 

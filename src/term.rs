@@ -9,12 +9,11 @@ use info::{init,escape,escape2};
 
 struct Writer {
     priv cleanup: bool,
-    priv alternate: bool,
 }
 
 pub fn Writer (cleanup: bool) -> Writer {
     init();
-    Writer { cleanup: cleanup, alternate: false }
+    Writer { cleanup: cleanup }
 }
 
 impl Writer {
@@ -40,14 +39,12 @@ impl Writer {
         }
     }
 
-    pub fn alternate_screen (&mut self, enable: bool) {
+    pub fn alternate_screen (&self, enable: bool) {
         if enable {
             io::print(escape("smcup"));
-            self.alternate = true;
         }
         else {
             io::print(escape("rmcup"));
-            self.alternate = false;
         }
     }
 }
@@ -55,9 +52,7 @@ impl Writer {
 impl Drop for Writer {
     fn finalize (&self) {
         if self.cleanup {
-            if self.alternate {
-                io::print(escape("rmcup"));
-            }
+            io::print(escape("rmcup"));
             io::print(escape("sgr0"));
             io::print(escape("cnorm"));
         }
