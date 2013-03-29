@@ -99,8 +99,13 @@ impl<T> Trie<T> {
 
     pub fn has_prefix (&self, s: &str) -> bool {
         let bytes = str::as_bytes_slice(s);
-        let (prefix_length, _) = self.root.find_prefix_trie(bytes);
-        prefix_length == vec::len(bytes)
+        let (prefix_length, node) = self.root.find_prefix_trie(bytes);
+        if prefix_length == vec::len(bytes) {
+            vec::any(node.children, |child| { child.is_some() })
+        }
+        else {
+            false
+        }
     }
 }
 
@@ -182,9 +187,9 @@ fn test_trie1 () {
     check_not_has_prefix(&trie, "bo");
     check_not_has_prefix(&trie, "qu");
 
-    check_has_prefix(&trie, "foo");
-    check_has_prefix(&trie, "bar");
-    check_has_prefix(&trie, "baz");
+    check_not_has_prefix(&trie, "foo");
+    check_not_has_prefix(&trie, "bar");
+    check_not_has_prefix(&trie, "baz");
     check_not_has_prefix(&trie, "for");
     check_not_has_prefix(&trie, "bao");
     check_not_has_prefix(&trie, "quu");
