@@ -1,11 +1,12 @@
 extern mod term;
-use core::io::ReaderUtil;
+use term::{KeyCharacter,KeyEscape,KeyUp,KeyDown,KeyLeft,KeyRight};
 
-fn term_app (body: &fn (w: &term::Writer)) {
+fn term_app (body: &fn (r: &term::Reader, w: &term::Writer)) {
     let writer = term::Writer(true);
+    let reader = term::Reader();
     do term::ios::preserve {
         writer.alternate_screen(true);
-        body(&writer);
+        body(&reader, &writer);
     }
 }
 
@@ -30,7 +31,7 @@ fn draw_ground (w: &term::Writer, x: uint, y: uint) {
 fn main () {
     let (cols, rows) = term::size();
 
-    do term_app |w| {
+    do term_app |r, w| {
         term::cbreak();
         term::echo(false);
         w.clear();
@@ -41,13 +42,22 @@ fn main () {
         let mut cursor = true;
         loop {
             draw_character(w, x, y);
-            match io::stdin().read_char() {
-                'q' => { break }
-                'h' if x > 0        => { draw_ground(w, x, y); x -= 1 }
-                'j' if y < rows - 1 => { draw_ground(w, x, y); y += 1 }
-                'k' if y > 0        => { draw_ground(w, x, y); y -= 1 }
-                'l' if x < cols - 1 => { draw_ground(w, x, y); x += 1 }
-                ' ' => { w.cursor(cursor); cursor = !cursor }
+            let k = match r.read() {
+                Some(key) => key,
+                None      => break,
+            };
+            draw_ground(w, x, y);
+
+            match k {
+                KeyCharacter('q') | KeyEscape => { break }
+
+                KeyCharacter('h') | KeyLeft  if x > 0        => { x -= 1 }
+                KeyCharacter('j') | KeyDown  if y < rows - 1 => { y += 1 }
+                KeyCharacter('k') | KeyUp    if y > 0        => { y -= 1 }
+                KeyCharacter('l') | KeyRight if x < cols - 1 => { x += 1 }
+
+                KeyCharacter(' ') => { w.cursor(cursor); cursor = !cursor }
+
                 _   => { }
             }
         }

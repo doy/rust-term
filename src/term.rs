@@ -3,9 +3,12 @@
 #[crate_type = "lib"];
 
 use core::libc::c_int;
+use core::option::{Option,Some,None};
+use core::io::ReaderUtil;
 
 pub use ios::{cooked,cbreak,raw,echo,size};
 use info::{init,escape,escape2};
+use util::Trie;
 
 struct Writer {
     priv cleanup: bool,
@@ -57,6 +60,99 @@ impl Drop for Writer {
             io::print(escape("cnorm"));
         }
     }
+}
+
+enum Keypress {
+    KeyCharacter(char),
+    KeyBackspace,
+    KeyReturn,
+    KeyTab,
+    KeyCtrl(char),
+    KeyF(int),
+    KeyUp,
+    KeyDown,
+    KeyLeft,
+    KeyRight,
+    KeyHome,
+    KeyEnd,
+    KeyInsert,
+    KeyDelete,
+    KeyEscape,
+}
+
+struct Reader {
+    priv escapes: ~Trie<Keypress>,
+}
+
+pub fn Reader () -> Reader {
+    Reader { escapes: build_escapes_trie() }
+}
+
+impl Reader {
+    pub fn read (&self) -> Option<Keypress> {
+        let mut buf = ~"";
+        loop {
+            let c = io::stdin().read_char();
+            if c as int == -1 {
+                return None;
+            }
+
+            str::push_char(&mut buf, c);
+            io::print(str::escape_default(buf));
+
+            if !self.escapes.has_prefix(buf) {
+                match self.escapes.find(buf) {
+                    &Some(k) => { return Some(k) }
+                    &None    => {
+                        if str::len(buf) == 1 {
+                            return Some(KeyCharacter(str::char_at(buf, 0)));
+                        }
+                        else {
+                            // XXX this is... suboptimal
+                            // really, we need to do an ungetc sort of thing
+                            // with the characters in buf, and then just
+                            // return the first character as a KeyCharacter
+                            fail!("unknown escape");
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// XXX this whole thing needs to be able to deal with caps that don't exist
+fn build_escapes_trie () -> ~Trie<Keypress> {
+    let mut trie = ~Trie();
+
+    trie.insert(escape("kbs"), KeyBackspace);
+    trie.insert(escape("cr"),  KeyReturn);
+    trie.insert(escape("ht"),  KeyTab);
+
+    trie.insert(escape("kcuu1"), KeyUp);
+    trie.insert(escape("kcud1"), KeyDown);
+    trie.insert(escape("kcub1"), KeyLeft);
+    trie.insert(escape("kcuf1"), KeyRight);
+
+    trie.insert(escape("khome"), KeyHome);
+    trie.insert(escape("kend"),  KeyEnd);
+    trie.insert(escape("kich1"), KeyInsert);
+    trie.insert(escape("kdch1"), KeyDelete);
+
+    for uint::range(1, 12) |i| {
+        trie.insert(escape(fmt!("kf%d", i as int)), KeyF(i as int));
+    }
+
+    for uint::range(1, 26) |i| {
+        let s = str::from_char(i as char);
+        if (trie.find(s).is_none()) {
+            trie.insert(s, KeyCtrl(i as char));
+        }
+    }
+
+    trie.insert(str::from_char(27 as char), KeyEscape);
+
+    trie
 }
 
 pub fn isatty() -> bool {
