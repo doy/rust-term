@@ -3,8 +3,6 @@
 #[crate_type = "lib"];
 
 use core::libc::c_int;
-use core::option::{Option,Some,None};
-use core::io::ReaderUtil;
 
 pub use ios::{cooked,cbreak,raw,echo,size};
 use info::{init,escape,escape2};

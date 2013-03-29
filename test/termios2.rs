@@ -1,5 +1,4 @@
 extern mod term;
-use core::io::{ReaderUtil,WriterUtil};
 
 fn loop_chars () {
     loop {
