@@ -8,6 +8,11 @@ all: build tests
 
 build: tmp/built
 
+check: build
+	$(RUSTC) -L tmp --test $(MAIN_SOURCE) -o TEST
+	./TEST
+	@rm -f TEST
+
 tests: $(TESTS)
 
 bin/%: test/%.rs tmp/built
