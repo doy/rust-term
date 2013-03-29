@@ -112,7 +112,7 @@ impl Reader {
                             // really, we need to do an ungetc sort of thing
                             // with the characters in buf, and then just
                             // return the first character as a KeyCharacter
-                            fail!("unknown escape");
+                            fail!(~"unknown escape");
                         }
                     }
                 }
