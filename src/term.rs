@@ -80,14 +80,19 @@ enum Keypress {
 
 struct Reader {
     priv escapes: ~Trie<Keypress>,
+    priv buf: ~str,
 }
 
 pub fn Reader () -> Reader {
-    Reader { escapes: build_escapes_trie() }
+    Reader { escapes: build_escapes_trie(), buf: ~"" }
 }
 
 impl Reader {
-    pub fn read (&self) -> Option<Keypress> {
+    pub fn read (&mut self) -> Option<Keypress> {
+        if str::len(self.buf) > 0 {
+            return Some(KeyCharacter(str::shift_char(&mut self.buf)));
+        }
+
         let mut buf = ~"";
         loop {
             let c = io::stdin().read_char();
@@ -96,22 +101,14 @@ impl Reader {
             }
 
             str::push_char(&mut buf, c);
-            io::print(str::escape_default(buf));
 
             if !self.escapes.has_prefix(buf) {
-                match self.escapes.find(buf) {
-                    &Some(k) => { return Some(k) }
+                return match self.escapes.find(buf) {
+                    &Some(k) => { Some(k) }
                     &None    => {
-                        if str::len(buf) == 1 {
-                            return Some(KeyCharacter(str::char_at(buf, 0)));
-                        }
-                        else {
-                            // XXX this is... suboptimal
-                            // really, we need to do an ungetc sort of thing
-                            // with the characters in buf, and then just
-                            // return the first character as a KeyCharacter
-                            fail!(~"unknown escape");
-                        }
+                        str::push_str(&mut self.buf, buf);
+                        let next = str::shift_char(&mut self.buf);
+                        Some(KeyCharacter(next))
                     }
                 }
             }

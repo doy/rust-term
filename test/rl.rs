@@ -1,12 +1,12 @@
 extern mod term;
 use term::{KeyCharacter,KeyEscape,KeyUp,KeyDown,KeyLeft,KeyRight};
 
-fn term_app (body: &fn (r: &term::Reader, w: &term::Writer)) {
+fn term_app (body: &fn (r: &mut term::Reader, w: &term::Writer)) {
     let writer = term::Writer(true);
-    let reader = term::Reader();
+    let mut reader = term::Reader();
     do term::ios::preserve {
         writer.alternate_screen(true);
-        body(&reader, &writer);
+        body(&mut reader, &writer);
     }
 }
 
