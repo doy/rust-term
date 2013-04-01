@@ -2,9 +2,9 @@ extern mod term;
 use term::{KeyCharacter,KeyEscape,KeyUp,KeyDown,KeyLeft,KeyRight};
 
 fn term_app (body: &fn (r: &mut term::Term)) {
-    let mut term = term::Term(true);
     do term::ios::preserve {
-        term.alternate_screen(true);
+        let mut term = term::Term(true);
+        term.init_term_app();
         body(&mut term);
     }
 }
@@ -31,10 +31,6 @@ fn main () {
     let (cols, rows) = term::size();
 
     do term_app |term| {
-        term::cbreak();
-        term::echo(false);
-        term.clear();
-
         draw_map(term, rows, cols);
 
         let mut (x, y) = (0u, 0u);

@@ -15,11 +15,19 @@ struct Term {
 
 pub fn Term (cleanup: bool) -> Term {
     info::init();
-    io::print(escape("smkx"));
     Term { r: Reader(cleanup), w: Writer(cleanup) }
 }
 
 impl Term {
+    pub fn init_term_app (&mut self) {
+        cbreak();
+        echo(false);
+        self.write(escape("smkx"));
+        self.alternate_screen(true);
+        self.clear();
+        self.flush();
+    }
+
     pub fn clear (&mut self) {
         self.w.clear();
     }
