@@ -75,7 +75,7 @@ impl<T> Trie<T> {
         }
         else {
             let bytes = str::as_bytes_slice(s);
-            insert(
+            self.insert_vec(
                 &mut self.root.children[bytes[0]],
                 vec::tail(bytes),
                 v
@@ -105,25 +105,25 @@ impl<T> Trie<T> {
             false
         }
     }
-}
 
-fn insert<T> (loc: &mut Option<~TrieNode<T>>, bytes: &[u8], v: T) {
-    let mut tmp = None;
-    tmp <-> *loc;
+    fn insert_vec (&self, loc: &mut Option<~TrieNode<T>>, bytes: &[u8], v: T) {
+        let mut tmp = None;
+        tmp <-> *loc;
 
-    let mut new = match tmp {
-        Some(node) => node,
-        None       => ~TrieNode(),
-    };
+        let mut new = match tmp {
+            Some(node) => node,
+            None       => ~TrieNode(),
+        };
 
-    if vec::len(bytes) == 0 {
-        new.value = Some(v);
+        if vec::len(bytes) == 0 {
+            new.value = Some(v);
+        }
+        else {
+            self.insert_vec(&mut new.children[bytes[0]], vec::tail(bytes), v);
+        }
+
+        *loc = Some(new);
     }
-    else {
-        insert(&mut new.children[bytes[0]], vec::tail(bytes), v);
-    }
-
-    *loc = Some(new);
 }
 
 impl<T> TrieNode<T> {
