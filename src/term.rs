@@ -105,7 +105,7 @@ impl Writer {
     }
 
     fn flush (&mut self) {
-        io::print(self.buf);
+        print(self.buf);
         io::stdout().flush();
         self.buf = ~"";
     }
@@ -114,9 +114,9 @@ impl Writer {
 impl Drop for Writer {
     fn finalize (&self) {
         if self.cleanup {
-            io::print(escape("rmcup"));
-            io::print(escape("sgr0"));
-            io::print(escape("cnorm"));
+            print(escape("rmcup"));
+            print(escape("sgr0"));
+            print(escape("cnorm"));
         }
     }
 }
@@ -217,7 +217,7 @@ impl Reader {
 impl Drop for Reader {
     fn finalize (&self) {
         if self.cleanup {
-            io::print(escape("rmkx"));
+            print(escape("rmkx"));
         }
     }
 }
