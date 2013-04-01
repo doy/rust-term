@@ -197,7 +197,7 @@ impl Reader {
     }
 
     fn next_key (&mut self) -> Keypress {
-        fail_unless!(str::len(self.buf) > 0);
+        assert!(str::len(self.buf) > 0);
         for uint::range_rev(str::len(self.buf), 0) |i| {
             match self.escapes.find(str::slice(self.buf, 0, i)) {
                 &Some(k) => {

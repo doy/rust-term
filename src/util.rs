@@ -198,7 +198,7 @@ fn test_trie1 () {
 #[cfg(test)]
 fn check_exists (trie: &Trie<int>, find: &str, value: int) {
     match trie.find(find) {
-        &Some(v) => { fail_unless!(v == value) }
+        &Some(v) => { assert!(v == value) }
         &None    => { fail!(fmt!("didn't find %?", find)) }
     }
 }
@@ -213,12 +213,12 @@ fn check_not_exists (trie: &Trie<int>, find: &str) {
 
 #[cfg(test)]
 fn check_has_prefix (trie: &Trie<int>, find: &str) {
-    fail_unless!(trie.has_prefix(find));
+    assert!(trie.has_prefix(find));
 }
 
 #[cfg(test)]
 fn check_not_has_prefix (trie: &Trie<int>, find: &str) {
-    fail_unless!(!trie.has_prefix(find));
+    assert!(!trie.has_prefix(find));
 }
 
 // XXX huge hack until there's a better built-in way to do this
