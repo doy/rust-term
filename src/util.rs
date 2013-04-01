@@ -1,3 +1,5 @@
+use core::libc::c_int;
+
 pub fn guard<T> (finally: ~fn (), body: &fn () -> T) -> T {
     let _guard = Guard { finally: finally };
     body()
@@ -217,4 +219,29 @@ fn check_has_prefix (trie: &Trie<int>, find: &str) {
 #[cfg(test)]
 fn check_not_has_prefix (trie: &Trie<int>, find: &str) {
     fail_unless!(!trie.has_prefix(find));
+}
+
+// XXX huge hack until there's a better built-in way to do this
+pub fn timed_read (timeout: int) -> Option<char> {
+    let first = unsafe { io_helper::timed_read(timeout as c_int) };
+    if first < 0 {
+        return None;
+    }
+
+    let mut buf = ~[first as u8];
+    let nbytes = str::utf8_char_width(first as u8);
+
+    for uint::range(0, nbytes - 1) |_| {
+        let next = unsafe { io_helper::timed_read(-1 as c_int) };
+        if next < 0 {
+            return None;
+        }
+        vec::push(&mut buf, next as u8);
+    }
+
+    Some(str::char_at(unsafe { str::raw::from_bytes(buf) }, 0))
+}
+
+extern mod io_helper {
+    fn timed_read (timeout: c_int) -> c_int;
 }

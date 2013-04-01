@@ -93,15 +93,13 @@ impl Reader {
             return Some(KeyCharacter(str::shift_char(&mut self.buf)));
         }
 
-        let mut buf = ~"";
+        let first = util::timed_read(-1);
+        if first.is_none() {
+            return None;
+        }
+
+        let mut buf = str::from_char(*first.get_ref());
         loop {
-            let c = io::stdin().read_char();
-            if c as int == -1 {
-                return None;
-            }
-
-            str::push_char(&mut buf, c);
-
             if !self.escapes.has_prefix(buf) {
                 return match self.escapes.find(buf) {
                     &Some(k) => { Some(k) }
@@ -110,6 +108,15 @@ impl Reader {
                         let next = str::shift_char(&mut self.buf);
                         Some(KeyCharacter(next))
                     }
+                }
+            }
+
+            match util::timed_read(1000000) {
+                Some(next) => { str::push_char(&mut buf, next) }
+                None       => {
+                    str::push_str(&mut self.buf, buf);
+                    let next = str::shift_char(&mut self.buf);
+                    return Some(KeyCharacter(next));
                 }
             }
         }
