@@ -84,6 +84,7 @@ struct Reader {
 }
 
 pub fn Reader () -> Reader {
+    io::print(escape("smkx"));
     Reader { escapes: build_escapes_trie(), buf: ~"" }
 }
 
