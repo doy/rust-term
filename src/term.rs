@@ -9,44 +9,56 @@ use info::{init,escape,escape2};
 use util::Trie;
 
 struct Writer {
+    priv buf: ~str,
     priv cleanup: bool,
 }
 
 pub fn Writer (cleanup: bool) -> Writer {
     init();
-    Writer { cleanup: cleanup }
+    Writer { buf: ~"", cleanup: cleanup }
 }
 
 impl Writer {
-    pub fn clear (&self) {
-        io::print(escape("clear"));
+    pub fn clear (&mut self) {
+        str::push_str(&mut self.buf, escape("clear"));
     }
 
-    pub fn move (&self, col: uint, row: uint) {
+    pub fn move (&mut self, col: uint, row: uint) {
         if col == 0u && row == 0u {
-            io::print(escape("home"));
+            str::push_str(&mut self.buf, escape("home"));
         }
         else {
-            io::print(escape2("cup", row as int, col as int));
+            str::push_str(&mut self.buf,
+                          escape2("cup", row as int, col as int));
         }
     }
 
-    pub fn cursor (&self, enabled: bool) {
+    pub fn cursor (&mut self, enabled: bool) {
         if enabled {
-            io::print(escape("civis"));
+            str::push_str(&mut self.buf, escape("civis"));
         }
         else {
-            io::print(escape("cnorm"));
+            str::push_str(&mut self.buf, escape("cnorm"));
         }
     }
 
-    pub fn alternate_screen (&self, enable: bool) {
+    pub fn alternate_screen (&mut self, enable: bool) {
         if enable {
-            io::print(escape("smcup"));
+            str::push_str(&mut self.buf, escape("smcup"));
         }
         else {
-            io::print(escape("rmcup"));
+            str::push_str(&mut self.buf, escape("rmcup"));
         }
+    }
+
+    pub fn write (&mut self, text: &str) {
+        str::push_str(&mut self.buf, text);
+    }
+
+    pub fn flush (&mut self) {
+        io::print(self.buf);
+        io::stdout().flush();
+        self.buf = ~"";
     }
 }
 
