@@ -90,7 +90,7 @@ pub fn Reader () -> Reader {
 impl Reader {
     pub fn read (&mut self) -> Option<Keypress> {
         if str::len(self.buf) > 0 {
-            return Some(KeyCharacter(str::shift_char(&mut self.buf)));
+            return Some(self.next_key());
         }
 
         let first = util::timed_read(-1);
@@ -101,25 +101,43 @@ impl Reader {
         let mut buf = str::from_char(*first.get_ref());
         loop {
             if !self.escapes.has_prefix(buf) {
-                return match self.escapes.find(buf) {
-                    &Some(k) => { Some(k) }
-                    &None    => {
-                        str::push_str(&mut self.buf, buf);
-                        let next = str::shift_char(&mut self.buf);
-                        Some(KeyCharacter(next))
+                /* XXX i think this is a borrow check bug, should look into
+                 * it at some point */
+                //return match self.escapes.find(buf) {
+                //    &Some(k) => { Some(k) }
+                //    &None    => {
+                //        self.unget(buf);
+                //        self.read()
+                //    }
+                //}
+                {
+                    let k = self.escapes.find(buf);
+                    if k.is_some() {
+                        return *k;
                     }
                 }
+                self.unget(buf);
+                return self.read();
             }
 
             match util::timed_read(1000000) {
                 Some(next) => { str::push_char(&mut buf, next) }
                 None       => {
-                    str::push_str(&mut self.buf, buf);
-                    let next = str::shift_char(&mut self.buf);
-                    return Some(KeyCharacter(next));
+                    self.unget(buf);
+                    return self.read();
                 }
             }
         }
+    }
+
+    fn unget (&mut self, buf: &str) {
+        str::push_str(&mut self.buf, buf);
+    }
+
+    fn next_key (&mut self) -> Keypress {
+        fail_unless!(str::len(self.buf) > 0);
+        let next = str::shift_char(&mut self.buf);
+        return KeyCharacter(next);
     }
 }
 
