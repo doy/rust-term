@@ -81,11 +81,12 @@ enum Keypress {
 struct Reader {
     priv escapes: ~Trie<Keypress>,
     priv buf: ~str,
+    priv cleanup: bool,
 }
 
-pub fn Reader () -> Reader {
+pub fn Reader (cleanup: bool) -> Reader {
     io::print(escape("smkx"));
-    Reader { escapes: build_escapes_trie(), buf: ~"" }
+    Reader { escapes: build_escapes_trie(), buf: ~"", cleanup: cleanup }
 }
 
 impl Reader {
@@ -150,6 +151,14 @@ impl Reader {
         }
         let next = str::shift_char(&mut self.buf);
         return KeyCharacter(next);
+    }
+}
+
+impl Drop for Reader {
+    fn finalize (&self) {
+        if self.cleanup {
+            io::print(escape("rmkx"));
+        }
     }
 }
 

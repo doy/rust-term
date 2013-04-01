@@ -3,7 +3,7 @@ use term::{KeyCharacter,KeyEscape,KeyUp,KeyDown,KeyLeft,KeyRight};
 
 fn term_app (body: &fn (r: &mut term::Reader, w: &term::Writer)) {
     let writer = term::Writer(true);
-    let mut reader = term::Reader();
+    let mut reader = term::Reader(true);
     do term::ios::preserve {
         writer.alternate_screen(true);
         body(&mut reader, &writer);
