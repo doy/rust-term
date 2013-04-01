@@ -5,25 +5,66 @@
 use core::libc::c_int;
 
 pub use ios::{cooked,cbreak,raw,echo,size};
-use info::{init,escape,escape2};
+use info::{escape,escape2};
 use util::Trie;
+
+struct Term {
+    priv r: Reader,
+    priv w: Writer,
+}
+
+pub fn Term (cleanup: bool) -> Term {
+    info::init();
+    io::print(escape("smkx"));
+    Term { r: Reader(cleanup), w: Writer(cleanup) }
+}
+
+impl Term {
+    pub fn clear (&mut self) {
+        self.w.clear();
+    }
+
+    pub fn move (&mut self, col: uint, row: uint) {
+        self.w.move(col, row);
+    }
+
+    pub fn cursor (&mut self, enabled: bool) {
+        self.w.cursor(enabled);
+    }
+
+    pub fn alternate_screen (&mut self, enabled: bool) {
+        self.w.alternate_screen(enabled);
+    }
+
+    pub fn write (&mut self, text: &str) {
+        self.w.write(text);
+    }
+
+    pub fn flush (&mut self) {
+        self.w.flush();
+    }
+
+    pub fn read (&mut self) -> Option<Keypress> {
+        self.w.flush();
+        self.r.read()
+    }
+}
 
 struct Writer {
     priv buf: ~str,
     priv cleanup: bool,
 }
 
-pub fn Writer (cleanup: bool) -> Writer {
-    init();
+fn Writer (cleanup: bool) -> Writer {
     Writer { buf: ~"", cleanup: cleanup }
 }
 
 impl Writer {
-    pub fn clear (&mut self) {
+    fn clear (&mut self) {
         str::push_str(&mut self.buf, escape("clear"));
     }
 
-    pub fn move (&mut self, col: uint, row: uint) {
+    fn move (&mut self, col: uint, row: uint) {
         if col == 0u && row == 0u {
             str::push_str(&mut self.buf, escape("home"));
         }
@@ -33,7 +74,7 @@ impl Writer {
         }
     }
 
-    pub fn cursor (&mut self, enabled: bool) {
+    fn cursor (&mut self, enabled: bool) {
         if enabled {
             str::push_str(&mut self.buf, escape("civis"));
         }
@@ -42,7 +83,7 @@ impl Writer {
         }
     }
 
-    pub fn alternate_screen (&mut self, enable: bool) {
+    fn alternate_screen (&mut self, enable: bool) {
         if enable {
             str::push_str(&mut self.buf, escape("smcup"));
         }
@@ -51,11 +92,11 @@ impl Writer {
         }
     }
 
-    pub fn write (&mut self, text: &str) {
+    fn write (&mut self, text: &str) {
         str::push_str(&mut self.buf, text);
     }
 
-    pub fn flush (&mut self) {
+    fn flush (&mut self) {
         io::print(self.buf);
         io::stdout().flush();
         self.buf = ~"";
@@ -97,12 +138,11 @@ struct Reader {
 }
 
 pub fn Reader (cleanup: bool) -> Reader {
-    io::print(escape("smkx"));
     Reader { escapes: build_escapes_trie(), buf: ~"", cleanup: cleanup }
 }
 
 impl Reader {
-    pub fn read (&mut self) -> Option<Keypress> {
+    fn read (&mut self) -> Option<Keypress> {
         if str::len(self.buf) > 0 {
             return Some(self.next_key());
         }
