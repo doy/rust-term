@@ -88,6 +88,18 @@ impl Term {
         self.w.standout(enabled);
     }
 
+    pub fn reverse (&mut self, enabled: bool) {
+        self.w.reverse(enabled);
+    }
+
+    pub fn bold (&mut self, enabled: bool) {
+        self.w.bold(enabled);
+    }
+
+    pub fn blink (&mut self, enabled: bool) {
+        self.w.blink(enabled);
+    }
+
     pub fn cursor (&mut self, enabled: bool) {
         self.w.cursor(enabled);
     }
@@ -113,10 +125,35 @@ impl Term {
 struct Writer {
     priv buf: ~str,
     priv cleanup: bool,
+    priv state: AttrState,
+}
+
+struct AttrState {
+    fg: Option<Color>,
+    bg: Option<Color>,
+    underline: bool,
+    standout: bool,
+    reverse: bool,
+    bold: bool,
+    blink: bool,
 }
 
 fn Writer (cleanup: bool) -> Writer {
-    Writer { buf: ~"", cleanup: cleanup }
+    let mut w = Writer { buf: ~"", cleanup: cleanup, state: AttrState() };
+    w.reset_attributes();
+    w
+}
+
+fn AttrState () -> AttrState {
+    AttrState {
+        fg: None,
+        bg: None,
+        underline: false,
+        standout: false,
+        reverse: false,
+        bold: false,
+        blink: false,
+    }
 }
 
 impl Writer {
@@ -134,18 +171,17 @@ impl Writer {
     }
 
     fn fg_color (&mut self, color: Color) {
+        self.state.fg = Some(color);
         self.buf.push_str(escape1("setaf", color as int));
     }
 
     fn bg_color (&mut self, color: Color) {
+        self.state.bg = Some(color);
         self.buf.push_str(escape1("setab", color as int));
     }
 
-    fn reset_color (&mut self) {
-        self.buf.push_str(escape("op"));
-    }
-
     fn underline (&mut self, enabled: bool) {
+        self.state.underline = enabled;
         if enabled {
             self.buf.push_str(escape("smul"));
         }
@@ -155,11 +191,86 @@ impl Writer {
     }
 
     fn standout (&mut self, enabled: bool) {
+        self.state.standout = enabled;
         if enabled {
             self.buf.push_str(escape("smso"));
         }
         else {
             self.buf.push_str(escape("rmso"));
+        }
+    }
+
+    fn reverse (&mut self, enabled: bool) {
+        if self.state.reverse != enabled {
+            if self.state.reverse {
+                self.apply_state();
+            }
+            else {
+                self.buf.push_str(escape("rev"));
+            }
+            self.state.reverse = enabled;
+        }
+    }
+
+    fn bold (&mut self, enabled: bool) {
+        if self.state.bold != enabled {
+            if self.state.bold {
+                self.apply_state();
+            }
+            else {
+                self.buf.push_str(escape("bold"));
+            }
+            self.state.bold = enabled;
+        }
+    }
+
+    fn blink (&mut self, enabled: bool) {
+        if self.state.blink != enabled {
+            if self.state.blink {
+                self.apply_state();
+            }
+            else {
+                self.buf.push_str(escape("blink"));
+            }
+            self.state.blink = enabled;
+        }
+    }
+
+    fn reset_color (&mut self) {
+        self.state.fg = None;
+        self.state.bg = None;
+        self.buf.push_str(escape("op"));
+    }
+
+    fn reset_attributes (&mut self) {
+        self.state = AttrState();
+        self.apply_state();
+    }
+
+    fn apply_state (&mut self) {
+        self.buf.push_str(escape("sgr0"));
+        match self.state.fg {
+            Some(c) => self.fg_color(c),
+            None    => (),
+        }
+        match self.state.bg {
+            Some(c) => self.bg_color(c),
+            None    => (),
+        }
+        if self.state.underline {
+            self.underline(true);
+        }
+        if self.state.standout {
+            self.standout(true);
+        }
+        if self.state.reverse {
+            self.reverse(true);
+        }
+        if self.state.bold {
+            self.bold(true);
+        }
+        if self.state.blink {
+            self.blink(true);
         }
     }
 
