@@ -80,6 +80,14 @@ impl Term {
         self.w.reset_color();
     }
 
+    pub fn underline (&mut self, enabled: bool) {
+        self.w.underline(enabled);
+    }
+
+    pub fn standout (&mut self, enabled: bool) {
+        self.w.standout(enabled);
+    }
+
     pub fn cursor (&mut self, enabled: bool) {
         self.w.cursor(enabled);
     }
@@ -135,6 +143,24 @@ impl Writer {
 
     fn reset_color (&mut self) {
         self.buf.push_str(escape("op"));
+    }
+
+    fn underline (&mut self, enabled: bool) {
+        if enabled {
+            self.buf.push_str(escape("smul"));
+        }
+        else {
+            self.buf.push_str(escape("rmul"));
+        }
+    }
+
+    fn standout (&mut self, enabled: bool) {
+        if enabled {
+            self.buf.push_str(escape("smso"));
+        }
+        else {
+            self.buf.push_str(escape("rmso"));
+        }
     }
 
     fn cursor (&mut self, enabled: bool) {
