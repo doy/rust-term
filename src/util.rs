@@ -39,3 +39,12 @@ pub fn timed_read (timeout: int) -> Option<char> {
 extern mod io_helper {
     fn timed_read (timeout: c_int) -> c_int;
 }
+
+pub fn isatty() -> bool {
+    unsafe { c_isatty(0) as bool }
+}
+
+extern {
+    #[link_name = "isatty"]
+    fn c_isatty(fd: c_int) -> c_int;
+}

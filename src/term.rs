@@ -5,11 +5,16 @@
 
 #[crate_type = "lib"];
 
-use core::libc::c_int;
-
 pub use ios::{cooked,cbreak,raw,echo,size};
+pub use util::isatty;
+
 use info::{escape,escape1,escape2};
 use trie::Trie;
+
+pub mod info;
+pub mod ios;
+mod trie;
+mod util;
 
 enum Keypress {
     KeyCharacter(char),
@@ -443,18 +448,4 @@ fn build_escapes_trie () -> ~Trie<Keypress> {
     trie.insert(str::from_char(27 as char), KeyEscape);
 
     trie
-}
-
-pub fn isatty() -> bool {
-    unsafe { c_isatty(0) as bool }
-}
-
-pub mod ios;
-pub mod info;
-mod util;
-mod trie;
-
-extern {
-    #[link_name = "isatty"]
-    fn c_isatty(fd: c_int) -> c_int;
 }
