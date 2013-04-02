@@ -29,6 +29,7 @@ enum Keypress {
     KeyEscape,
 }
 
+#[deriving(Eq)]
 enum Color {
     ColorBlack = 0,
     ColorRed,
@@ -171,68 +172,82 @@ impl Writer {
     }
 
     fn fg_color (&mut self, color: Color) {
-        self.state.fg = Some(color);
-        self.buf.push_str(escape1("setaf", color as int));
+        match self.state.fg {
+            Some(c) if c == color => {}
+            _                     => {
+                self.state.fg = Some(color);
+                self.buf.push_str(escape1("setaf", color as int));
+            }
+        }
     }
 
     fn bg_color (&mut self, color: Color) {
-        self.state.bg = Some(color);
-        self.buf.push_str(escape1("setab", color as int));
+        match self.state.bg {
+            Some(c) if c == color => {}
+            _                     => {
+                self.state.bg = Some(color);
+                self.buf.push_str(escape1("setab", color as int));
+            }
+        }
     }
 
     fn underline (&mut self, enabled: bool) {
-        self.state.underline = enabled;
-        if enabled {
-            self.buf.push_str(escape("smul"));
-        }
-        else {
-            self.buf.push_str(escape("rmul"));
+        if self.state.underline != enabled {
+            self.state.underline = enabled;
+            if enabled {
+                self.buf.push_str(escape("smul"));
+            }
+            else {
+                self.buf.push_str(escape("rmul"));
+            }
         }
     }
 
     fn standout (&mut self, enabled: bool) {
-        self.state.standout = enabled;
-        if enabled {
-            self.buf.push_str(escape("smso"));
-        }
-        else {
-            self.buf.push_str(escape("rmso"));
+        if self.state.standout != enabled {
+            self.state.standout = enabled;
+            if enabled {
+                self.buf.push_str(escape("smso"));
+            }
+            else {
+                self.buf.push_str(escape("rmso"));
+            }
         }
     }
 
     fn reverse (&mut self, enabled: bool) {
         if self.state.reverse != enabled {
-            if self.state.reverse {
-                self.apply_state();
-            }
-            else {
+            self.state.reverse = enabled;
+            if enabled {
                 self.buf.push_str(escape("rev"));
             }
-            self.state.reverse = enabled;
+            else {
+                self.apply_state();
+            }
         }
     }
 
     fn bold (&mut self, enabled: bool) {
         if self.state.bold != enabled {
-            if self.state.bold {
-                self.apply_state();
-            }
-            else {
+            self.state.bold = enabled;
+            if enabled {
                 self.buf.push_str(escape("bold"));
             }
-            self.state.bold = enabled;
+            else {
+                self.apply_state();
+            }
         }
     }
 
     fn blink (&mut self, enabled: bool) {
         if self.state.blink != enabled {
-            if self.state.blink {
-                self.apply_state();
-            }
-            else {
+            self.state.blink = enabled;
+            if enabled {
                 self.buf.push_str(escape("blink"));
             }
-            self.state.blink = enabled;
+            else {
+                self.apply_state();
+            }
         }
     }
 
