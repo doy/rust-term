@@ -298,8 +298,8 @@ impl Writer {
         }
     }
 
-    fn alternate_screen (&mut self, enable: bool) {
-        if enable {
+    fn alternate_screen (&mut self, enabled: bool) {
+        if enabled {
             self.buf.push_str(escape("smcup"));
         }
         else {
