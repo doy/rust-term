@@ -1,6 +1,6 @@
 extern mod term;
 use term::{KeyCharacter,KeyEscape,KeyUp,KeyDown,KeyLeft,KeyRight,KeyF};
-use term::{Color,ColorWhite,ColorRed};
+use term::{Color,ColorRed};
 
 fn term_app (body: &fn (r: &mut term::Term)) {
     do term::ios::preserve {
@@ -10,24 +10,36 @@ fn term_app (body: &fn (r: &mut term::Term)) {
     }
 }
 
-fn draw_map (term: &mut term::Term, color: Color, rows: uint, cols: uint) {
-    term.fg_color(color);
+fn draw_map (term: &mut term::Term, color: Option<Color>,
+             rows: uint, cols: uint) {
+    match color {
+        Some(c) => term.fg_color(c),
+        None    => term.reset_color(),
+    }
     for uint::range(0, rows) |i| {
         term.move(0, i);
         term.write(str::repeat(".", cols));
     }
 }
 
-fn draw_character (term: &mut term::Term, color: Color, x: uint, y: uint) {
+fn draw_character (term: &mut term::Term, color: Option<Color>,
+                   x: uint, y: uint) {
     term.move(x, y);
-    term.fg_color(color);
+    match color {
+        Some(c) => term.fg_color(c),
+        None    => term.reset_color(),
+    }
     term.write("@");
     term.move(x, y);
 }
 
-fn draw_ground (term: &mut term::Term, color: Color, x: uint, y: uint) {
+fn draw_ground (term: &mut term::Term, color: Option<Color>,
+                x: uint, y: uint) {
     term.move(x, y);
-    term.fg_color(color);
+    match color {
+        Some(c) => term.fg_color(c),
+        None    => term.reset_color(),
+    }
     term.write(".");
 }
 
@@ -37,12 +49,12 @@ fn main () {
     do term_app |term| {
         let mut (x, y) = (0u, 0u);
         let mut cursor = true;
-        let mut color  = ColorWhite;
+        let mut color  = None;
 
         draw_map(term, color, rows, cols);
 
         loop {
-            draw_character(term, ColorWhite, x, y);
+            draw_character(term, None, x, y);
             let k = match term.read() {
                 Some(key) => key,
                 None      => break,
@@ -58,11 +70,11 @@ fn main () {
                 KeyCharacter('l') | KeyRight if x < cols - 1 => { x += 1 }
 
                 KeyF(1) => {
-                    color = ColorRed;
+                    color = Some(ColorRed);
                     draw_map(term, color, rows, cols);
                 }
                 KeyF(6) => {
-                    color = ColorWhite;
+                    color = None;
                     draw_map(term, color, rows, cols);
                 }
 

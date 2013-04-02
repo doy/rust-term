@@ -76,6 +76,10 @@ impl Term {
         self.w.bg_color(color);
     }
 
+    pub fn reset_color (&mut self) {
+        self.w.reset_color();
+    }
+
     pub fn cursor (&mut self, enabled: bool) {
         self.w.cursor(enabled);
     }
@@ -127,6 +131,10 @@ impl Writer {
 
     fn bg_color (&mut self, color: Color) {
         self.buf.push_str(escape1("setab", color as int));
+    }
+
+    fn reset_color (&mut self) {
+        self.buf.push_str(escape("op"));
     }
 
     fn cursor (&mut self, enabled: bool) {
