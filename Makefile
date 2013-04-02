@@ -23,6 +23,8 @@ tmp/built: $(MAIN_SOURCE) $(OTHER_SOURCES) tmp/libtermios_wrapper.a tmp/libcurse
 	@mkdir -p lib
 	$(RUSTC) --out-dir lib -L tmp $(MAIN_SOURCE) && touch tmp/built
 
+clibs: tmp/libtermios_wrapper.a tmp/libcurses_helper.a tmp/libio_helper.a
+
 tmp/libtermios_wrapper.a: tmp/termios_wrapper.o
 	ar cr $@ $<
 
