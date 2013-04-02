@@ -6,7 +6,7 @@ use core::libc::c_int;
 
 pub use ios::{cooked,cbreak,raw,echo,size};
 use info::{escape,escape2};
-use util::Trie;
+use trie::Trie;
 
 struct Term {
     priv r: Reader,
@@ -262,6 +262,7 @@ pub fn isatty() -> bool {
 pub mod ios;
 pub mod info;
 mod util;
+mod trie;
 
 extern {
     #[link_name = "isatty"]
