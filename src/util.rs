@@ -72,14 +72,14 @@ fn TrieNode<T> () -> TrieNode<T> {
 
 impl<T> Trie<T> {
     pub fn insert (&mut self, s: &str, v: T) {
-        if str::len(s) == 0 {
+        if s.len() == 0 {
             self.root.value = Some(v);
         }
         else {
             let bytes = str::as_bytes_slice(s);
             self.insert_vec(
                 &mut self.root.children[bytes[0]],
-                vec::tail(bytes),
+                bytes.tail(),
                 v
             );
         }
@@ -89,7 +89,7 @@ impl<T> Trie<T> {
         let bytes = str::as_bytes_slice(s);
         let (prefix_length, node) = self.root.find_prefix_trie(bytes);
 
-        if prefix_length == vec::len(bytes) {
+        if prefix_length == bytes.len() {
             &node.value
         }
         else {
@@ -100,8 +100,8 @@ impl<T> Trie<T> {
     pub fn has_prefix (&self, s: &str) -> bool {
         let bytes = str::as_bytes_slice(s);
         let (prefix_length, node) = self.root.find_prefix_trie(bytes);
-        if prefix_length == vec::len(bytes) {
-            vec::any(node.children, |child| { child.is_some() })
+        if prefix_length == bytes.len() {
+            node.children.any(|child| { child.is_some() })
         }
         else {
             false
@@ -117,11 +117,11 @@ impl<T> Trie<T> {
             None       => ~TrieNode(),
         };
 
-        if vec::len(bytes) == 0 {
+        if bytes.len() == 0 {
             new.value = Some(v);
         }
         else {
-            self.insert_vec(&mut new.children[bytes[0]], vec::tail(bytes), v);
+            self.insert_vec(&mut new.children[bytes[0]], bytes.tail(), v);
         }
 
         *loc = Some(new);
@@ -130,14 +130,14 @@ impl<T> Trie<T> {
 
 impl<T> TrieNode<T> {
     fn find_prefix_trie (&self, bytes: &[u8]) -> (uint, &'self TrieNode<T>) {
-        if vec::len(bytes) == 0 {
+        if bytes.len() == 0 {
             (0u, self)
         }
         else {
             match self.children[bytes[0]] {
                 Some(ref t) => {
                     let (prefix_length, node) = t.find_prefix_trie(
-                        vec::tail(bytes)
+                        bytes.tail()
                     );
                     (prefix_length + 1, node)
                 }
@@ -236,10 +236,10 @@ pub fn timed_read (timeout: int) -> Option<char> {
         if next < 0 {
             return None;
         }
-        vec::push(&mut buf, next as u8);
+        buf.push(next as u8);
     }
 
-    Some(str::char_at(unsafe { str::raw::from_bytes(buf) }, 0))
+    Some(unsafe { str::raw::from_bytes(buf) }.char_at(0))
 }
 
 extern mod io_helper {

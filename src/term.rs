@@ -69,39 +69,38 @@ fn Writer (cleanup: bool) -> Writer {
 
 impl Writer {
     fn clear (&mut self) {
-        str::push_str(&mut self.buf, escape("clear"));
+        self.buf.push_str(escape("clear"));
     }
 
     fn move (&mut self, col: uint, row: uint) {
         if col == 0u && row == 0u {
-            str::push_str(&mut self.buf, escape("home"));
+            self.buf.push_str(escape("home"));
         }
         else {
-            str::push_str(&mut self.buf,
-                          escape2("cup", row as int, col as int));
+            self.buf.push_str(escape2("cup", row as int, col as int));
         }
     }
 
     fn cursor (&mut self, enabled: bool) {
         if enabled {
-            str::push_str(&mut self.buf, escape("civis"));
+            self.buf.push_str(escape("civis"));
         }
         else {
-            str::push_str(&mut self.buf, escape("cnorm"));
+            self.buf.push_str(escape("cnorm"));
         }
     }
 
     fn alternate_screen (&mut self, enable: bool) {
         if enable {
-            str::push_str(&mut self.buf, escape("smcup"));
+            self.buf.push_str(escape("smcup"));
         }
         else {
-            str::push_str(&mut self.buf, escape("rmcup"));
+            self.buf.push_str(escape("rmcup"));
         }
     }
 
     fn write (&mut self, text: &str) {
-        str::push_str(&mut self.buf, text);
+        self.buf.push_str(text);
     }
 
     fn flush (&mut self) {
@@ -151,7 +150,7 @@ pub fn Reader (cleanup: bool) -> Reader {
 
 impl Reader {
     fn read (&mut self) -> Option<Keypress> {
-        if str::len(self.buf) > 0 {
+        if self.buf.len() > 0 {
             return Some(self.next_key());
         }
 
@@ -183,7 +182,7 @@ impl Reader {
             }
 
             match util::timed_read(1000000) {
-                Some(next) => { str::push_char(&mut buf, next) }
+                Some(next) => { buf.push_char(next) }
                 None       => {
                     self.unget(buf);
                     return self.read();
@@ -193,13 +192,13 @@ impl Reader {
     }
 
     fn unget (&mut self, buf: &str) {
-        str::push_str(&mut self.buf, buf);
+        self.buf.push_str(buf);
     }
 
     fn next_key (&mut self) -> Keypress {
-        assert!(str::len(self.buf) > 0);
-        for uint::range_rev(str::len(self.buf), 0) |i| {
-            match self.escapes.find(str::slice(self.buf, 0, i)) {
+        assert!(self.buf.len() > 0);
+        for uint::range_rev(self.buf.len(), 0) |i| {
+            match self.escapes.find(self.buf.slice(0, i)) {
                 &Some(k) => {
                     for uint::range(0, i) |_| {
                         str::shift_char(&mut self.buf);
