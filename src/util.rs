@@ -1,4 +1,5 @@
 use core::libc::c_int;
+use core::util::swap;
 
 pub fn guard<T> (finally: ~fn (), body: &fn () -> T) -> T {
     let _guard = Guard { finally: finally };
@@ -110,7 +111,7 @@ impl<T> Trie<T> {
 
     fn insert_vec (&self, loc: &mut Option<~TrieNode<T>>, bytes: &[u8], v: T) {
         let mut tmp = None;
-        tmp <-> *loc;
+        swap(&mut tmp, loc);
 
         let mut new = match tmp {
             Some(node) => node,
