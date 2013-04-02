@@ -1,5 +1,6 @@
 extern mod term;
-use term::{KeyCharacter,KeyEscape,KeyUp,KeyDown,KeyLeft,KeyRight};
+use term::{KeyCharacter,KeyEscape,KeyUp,KeyDown,KeyLeft,KeyRight,KeyF};
+use term::{Color,ColorWhite,ColorRed};
 
 fn term_app (body: &fn (r: &mut term::Term)) {
     do term::ios::preserve {
@@ -9,21 +10,24 @@ fn term_app (body: &fn (r: &mut term::Term)) {
     }
 }
 
-fn draw_map (term: &mut term::Term, rows: uint, cols: uint) {
+fn draw_map (term: &mut term::Term, color: Color, rows: uint, cols: uint) {
+    term.fg_color(color);
     for uint::range(0, rows) |i| {
         term.move(0, i);
         term.write(str::repeat(".", cols));
     }
 }
 
-fn draw_character (term: &mut term::Term, x: uint, y: uint) {
+fn draw_character (term: &mut term::Term, color: Color, x: uint, y: uint) {
     term.move(x, y);
+    term.fg_color(color);
     term.write("@");
     term.move(x, y);
 }
 
-fn draw_ground (term: &mut term::Term, x: uint, y: uint) {
+fn draw_ground (term: &mut term::Term, color: Color, x: uint, y: uint) {
     term.move(x, y);
+    term.fg_color(color);
     term.write(".");
 }
 
@@ -31,17 +35,19 @@ fn main () {
     let (cols, rows) = term::size();
 
     do term_app |term| {
-        draw_map(term, rows, cols);
-
         let mut (x, y) = (0u, 0u);
         let mut cursor = true;
+        let mut color  = ColorWhite;
+
+        draw_map(term, color, rows, cols);
+
         loop {
-            draw_character(term, x, y);
+            draw_character(term, ColorWhite, x, y);
             let k = match term.read() {
                 Some(key) => key,
                 None      => break,
             };
-            draw_ground(term, x, y);
+            draw_ground(term, color, x, y);
 
             match k {
                 KeyCharacter('q') | KeyEscape => { break }
@@ -50,6 +56,15 @@ fn main () {
                 KeyCharacter('j') | KeyDown  if y < rows - 1 => { y += 1 }
                 KeyCharacter('k') | KeyUp    if y > 0        => { y -= 1 }
                 KeyCharacter('l') | KeyRight if x < cols - 1 => { x += 1 }
+
+                KeyF(1) => {
+                    color = ColorRed;
+                    draw_map(term, color, rows, cols);
+                }
+                KeyF(6) => {
+                    color = ColorWhite;
+                    draw_map(term, color, rows, cols);
+                }
 
                 KeyCharacter(' ') => { term.cursor(cursor); cursor = !cursor }
 

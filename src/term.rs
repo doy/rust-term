@@ -8,8 +8,37 @@
 use core::libc::c_int;
 
 pub use ios::{cooked,cbreak,raw,echo,size};
-use info::{escape,escape2};
+use info::{escape,escape1,escape2};
 use trie::Trie;
+
+enum Keypress {
+    KeyCharacter(char),
+    KeyBackspace,
+    KeyReturn,
+    KeyTab,
+    KeyCtrl(char),
+    KeyF(int),
+    KeyUp,
+    KeyDown,
+    KeyLeft,
+    KeyRight,
+    KeyHome,
+    KeyEnd,
+    KeyInsert,
+    KeyDelete,
+    KeyEscape,
+}
+
+enum Color {
+    ColorBlack = 0,
+    ColorRed,
+    ColorGreen,
+    ColorYellow,
+    ColorBlue,
+    ColorMagenta,
+    ColorCyan,
+    ColorWhite,
+}
 
 struct Term {
     priv r: Reader,
@@ -37,6 +66,14 @@ impl Term {
 
     pub fn move (&mut self, col: uint, row: uint) {
         self.w.move(col, row);
+    }
+
+    pub fn fg_color (&mut self, color: Color) {
+        self.w.fg_color(color);
+    }
+
+    pub fn bg_color (&mut self, color: Color) {
+        self.w.bg_color(color);
     }
 
     pub fn cursor (&mut self, enabled: bool) {
@@ -84,6 +121,14 @@ impl Writer {
         }
     }
 
+    fn fg_color (&mut self, color: Color) {
+        self.buf.push_str(escape1("setaf", color as int));
+    }
+
+    fn bg_color (&mut self, color: Color) {
+        self.buf.push_str(escape1("setab", color as int));
+    }
+
     fn cursor (&mut self, enabled: bool) {
         if enabled {
             self.buf.push_str(escape("civis"));
@@ -121,24 +166,6 @@ impl Drop for Writer {
             print(escape("cnorm"));
         }
     }
-}
-
-enum Keypress {
-    KeyCharacter(char),
-    KeyBackspace,
-    KeyReturn,
-    KeyTab,
-    KeyCtrl(char),
-    KeyF(int),
-    KeyUp,
-    KeyDown,
-    KeyLeft,
-    KeyRight,
-    KeyHome,
-    KeyEnd,
-    KeyInsert,
-    KeyDelete,
-    KeyEscape,
 }
 
 struct Reader {
