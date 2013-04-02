@@ -334,7 +334,7 @@ impl Drop for Writer {
 }
 
 struct Reader {
-    priv escapes: ~Trie<Keypress>,
+    priv escapes: Trie<Keypress>,
     priv buf: ~str,
     priv cleanup: bool,
 }
@@ -417,8 +417,8 @@ impl Drop for Reader {
 }
 
 // XXX this whole thing needs to be able to deal with caps that don't exist
-fn build_escapes_trie () -> ~Trie<Keypress> {
-    let mut trie = ~Trie();
+fn build_escapes_trie () -> Trie<Keypress> {
+    let mut trie = Trie();
 
     trie.insert(escape("kbs"), KeyBackspace);
     trie.insert(escape("cr"),  KeyReturn);
