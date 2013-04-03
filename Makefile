@@ -49,4 +49,4 @@ tmp/io_helper.o: src/io_helper.c
 clean:
 	-@rm -rf lib/ bin/ tmp/
 
-.PHONY: all clean build tests default
+.PHONY: all build check tests clibs clean
