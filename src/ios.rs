@@ -1,4 +1,4 @@
-use core::libc::{c_int,c_uint};
+use core::libc::{c_int,c_uint,c_void};
 use util::guard;
 
 pub fn cooked () -> int {
@@ -33,8 +33,6 @@ pub fn size() -> (uint, uint) {
     (cols as uint, rows as uint)
 }
 
-enum struct_termios {}
-
 #[link_name = "termios_wrapper"]
 extern mod c {
     fn cooked () -> c_int;
@@ -42,8 +40,8 @@ extern mod c {
     fn raw () -> c_int;
     fn echo (enable: c_int) -> c_int;
 
-    fn get() -> *struct_termios;
-    fn set(t: *struct_termios);
+    fn get() -> *c_void;
+    fn set(t: *c_void);
 
     fn size(cols: *c_uint, rows: *c_uint);
 }
