@@ -1,6 +1,6 @@
 extern mod term;
 use term::{KeyCharacter,KeyEscape,KeyUp,KeyDown,KeyLeft,KeyRight,KeyF};
-use term::{Color,ColorRed};
+use term::info::{Color,ColorRed};
 
 fn draw_map (term: &mut term::Term, color: Option<Color>,
              rows: uint, cols: uint) {

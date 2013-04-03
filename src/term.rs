@@ -8,7 +8,7 @@
 pub use ios::{cooked,cbreak,raw,echo,size};
 pub use util::isatty;
 
-use info::{escape,escape1,escape2};
+use info::Color;
 use trie::Trie;
 
 pub mod info;
@@ -34,18 +34,6 @@ enum Keypress {
     KeyEscape,
 }
 
-#[deriving(Eq)]
-enum Color {
-    ColorBlack = 0,
-    ColorRed,
-    ColorGreen,
-    ColorYellow,
-    ColorBlue,
-    ColorMagenta,
-    ColorCyan,
-    ColorWhite,
-}
-
 struct Term {
     priv r: Reader,
     priv w: Writer,
@@ -57,11 +45,11 @@ pub fn Term () -> Term {
     ios::cbreak();
     ios::echo(false);
 
-    print(escape("smkx"));
-    print(escape("smcup"));
-    print(escape("sgr0"));
-    print(escape("cnorm"));
-    print(escape("clear"));
+    print(info::keypad_xmit());
+    print(info::enter_ca_mode());
+    print(info::exit_attribute_mode());
+    print(info::cursor_normal());
+    print(info::clear_screen());
 
     Term { r: Reader(), w: Writer() }
 }
@@ -131,10 +119,10 @@ impl Term {
 
 impl Drop for Term {
     fn finalize (&self) {
-        print(escape("rmkx"));
-        print(escape("rmcup"));
-        print(escape("sgr0"));
-        print(escape("cnorm"));
+        print(info::keypad_xmit());
+        print(info::exit_ca_mode());
+        print(info::exit_attribute_mode());
+        print(info::cursor_normal());
 
         // XXX should really restore the previous termios mode...
         ios::cooked();
@@ -174,15 +162,15 @@ fn AttrState () -> AttrState {
 
 impl Writer {
     fn clear (&mut self) {
-        self.buf.push_str(escape("clear"));
+        self.buf.push_str(info::clear_screen());
     }
 
     fn move (&mut self, col: uint, row: uint) {
         if col == 0u && row == 0u {
-            self.buf.push_str(escape("home"));
+            self.buf.push_str(info::cursor_home());
         }
         else {
-            self.buf.push_str(escape2("cup", row as int, col as int));
+            self.buf.push_str(info::cursor_address(row, col));
         }
     }
 
@@ -191,7 +179,7 @@ impl Writer {
             Some(c) if c == color => {}
             _                     => {
                 self.state.fg = Some(color);
-                self.buf.push_str(escape1("setaf", color as int));
+                self.buf.push_str(info::set_a_foreground(color));
             }
         }
     }
@@ -201,7 +189,7 @@ impl Writer {
             Some(c) if c == color => {}
             _                     => {
                 self.state.bg = Some(color);
-                self.buf.push_str(escape1("setab", color as int));
+                self.buf.push_str(info::set_a_background(color));
             }
         }
     }
@@ -210,10 +198,10 @@ impl Writer {
         if self.state.underline != enabled {
             self.state.underline = enabled;
             if enabled {
-                self.buf.push_str(escape("smul"));
+                self.buf.push_str(info::enter_underline_mode());
             }
             else {
-                self.buf.push_str(escape("rmul"));
+                self.buf.push_str(info::exit_underline_mode());
             }
         }
     }
@@ -222,10 +210,10 @@ impl Writer {
         if self.state.standout != enabled {
             self.state.standout = enabled;
             if enabled {
-                self.buf.push_str(escape("smso"));
+                self.buf.push_str(info::enter_standout_mode());
             }
             else {
-                self.buf.push_str(escape("rmso"));
+                self.buf.push_str(info::exit_standout_mode());
             }
         }
     }
@@ -234,7 +222,7 @@ impl Writer {
         if self.state.reverse != enabled {
             self.state.reverse = enabled;
             if enabled {
-                self.buf.push_str(escape("rev"));
+                self.buf.push_str(info::enter_reverse_mode());
             }
             else {
                 self.apply_state();
@@ -246,7 +234,7 @@ impl Writer {
         if self.state.bold != enabled {
             self.state.bold = enabled;
             if enabled {
-                self.buf.push_str(escape("bold"));
+                self.buf.push_str(info::enter_bold_mode());
             }
             else {
                 self.apply_state();
@@ -258,7 +246,7 @@ impl Writer {
         if self.state.blink != enabled {
             self.state.blink = enabled;
             if enabled {
-                self.buf.push_str(escape("blink"));
+                self.buf.push_str(info::enter_blink_mode());
             }
             else {
                 self.apply_state();
@@ -269,7 +257,7 @@ impl Writer {
     fn reset_color (&mut self) {
         self.state.fg = None;
         self.state.bg = None;
-        self.buf.push_str(escape("op"));
+        self.buf.push_str(info::orig_pair());
     }
 
     fn reset_attributes (&mut self) {
@@ -278,7 +266,7 @@ impl Writer {
     }
 
     fn apply_state (&mut self) {
-        self.buf.push_str(escape("sgr0"));
+        self.buf.push_str(info::exit_attribute_mode());
         match self.state.fg {
             Some(c) => self.fg_color(c),
             None    => (),
@@ -306,19 +294,19 @@ impl Writer {
 
     fn cursor (&mut self, enabled: bool) {
         if enabled {
-            self.buf.push_str(escape("civis"));
+            self.buf.push_str(info::cursor_invisible());
         }
         else {
-            self.buf.push_str(escape("cnorm"));
+            self.buf.push_str(info::cursor_normal());
         }
     }
 
     fn alternate_screen (&mut self, enabled: bool) {
         if enabled {
-            self.buf.push_str(escape("smcup"));
+            self.buf.push_str(info::enter_ca_mode());
         }
         else {
-            self.buf.push_str(escape("rmcup"));
+            self.buf.push_str(info::exit_ca_mode());
         }
     }
 
@@ -411,22 +399,22 @@ impl Reader {
 fn build_escapes_trie () -> Trie<Keypress> {
     let mut trie = Trie();
 
-    trie.insert(escape("kbs"), KeyBackspace);
-    trie.insert(escape("cr"),  KeyReturn);
-    trie.insert(escape("ht"),  KeyTab);
+    trie.insert(info::key_backspace(), KeyBackspace);
+    trie.insert(info::carriage_return(),  KeyReturn);
+    trie.insert(info::tab(),  KeyTab);
 
-    trie.insert(escape("kcuu1"), KeyUp);
-    trie.insert(escape("kcud1"), KeyDown);
-    trie.insert(escape("kcub1"), KeyLeft);
-    trie.insert(escape("kcuf1"), KeyRight);
+    trie.insert(info::key_up(), KeyUp);
+    trie.insert(info::key_down(), KeyDown);
+    trie.insert(info::key_left(), KeyLeft);
+    trie.insert(info::key_right(), KeyRight);
 
-    trie.insert(escape("khome"), KeyHome);
-    trie.insert(escape("kend"),  KeyEnd);
-    trie.insert(escape("kich1"), KeyInsert);
-    trie.insert(escape("kdch1"), KeyDelete);
+    trie.insert(info::key_home(), KeyHome);
+    trie.insert(info::key_end(),  KeyEnd);
+    trie.insert(info::key_ic(), KeyInsert);
+    trie.insert(info::key_dc(), KeyDelete);
 
     for uint::range(1, 12) |i| {
-        trie.insert(escape(fmt!("kf%d", i as int)), KeyF(i as int));
+        trie.insert(info::key_f(i), KeyF(i as int));
     }
 
     for uint::range(1, 26) |i| {
