@@ -1,5 +1,5 @@
 use core::libc::{c_int,c_void};
-use util::guard;
+use guard::guard;
 
 pub fn cooked () -> int {
     unsafe { c::cooked() as int }

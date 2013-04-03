@@ -1,20 +1,5 @@
 use core::libc::{c_int,c_uint};
 
-pub fn guard<T> (finally: ~fn (), body: &fn () -> T) -> T {
-    let _guard = Guard { finally: finally };
-    body()
-}
-
-struct Guard {
-    priv finally: ~fn (),
-}
-
-impl Drop for Guard {
-    fn finalize (&self) {
-        (self.finally)();
-    }
-}
-
 // XXX huge hack until there's a better built-in way to do this
 pub fn timed_read (timeout: int) -> Option<char> {
     let first = unsafe { io_helper::timed_read(timeout as c_int) };
