@@ -12,7 +12,7 @@ fn loop_chars () {
 
 fn main () {
     do term::ios::preserve {
-        term::raw();
+        term::ios::raw();
         loop_chars();
     }
 

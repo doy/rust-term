@@ -5,8 +5,7 @@
 
 #[crate_type = "lib"];
 
-pub use ios::{cooked,cbreak,raw,echo,size};
-pub use util::isatty;
+pub use util::{isatty,size};
 
 pub mod hexes;
 pub mod info;

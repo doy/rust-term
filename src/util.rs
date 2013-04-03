@@ -1,4 +1,4 @@
-use core::libc::c_int;
+use core::libc::{c_int,c_uint};
 
 pub fn guard<T> (finally: ~fn (), body: &fn () -> T) -> T {
     let _guard = Guard { finally: finally };
@@ -38,6 +38,19 @@ pub fn timed_read (timeout: int) -> Option<char> {
 
 extern mod io_helper {
     fn timed_read (timeout: c_int) -> c_int;
+}
+
+pub fn size() -> (uint, uint) {
+    let cols: c_uint = 0;
+    let rows: c_uint = 0;
+    unsafe {
+        termios_wrapper::size(&cols, &rows)
+    }
+    (cols as uint, rows as uint)
+}
+
+extern mod termios_wrapper {
+    fn size(cols: *c_uint, rows: *c_uint);
 }
 
 pub fn isatty() -> bool {
