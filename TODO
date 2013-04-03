@@ -1,12 +1,5 @@
 for 0.0.1
 =========
-- make sure that using this for non-full-screen apps works sanely
-  - should be able to just initialize a Term object and use it to write with
-    colors in a regular program (although maybe not doing this functionality
-    with an actual Term object makes more sense?)
-  - for instance, .read() shouldn't try to parse escape sequences if we aren't
-    in cbreak mode, and cbreak mode and keypad mode should possibly be tied
-    together (or should .read() even make sense in cooked mode?)
 - error handling
   - probably should be able to initialize the escape code trie with a lot more
     options, and optionally disable them if the terminfo capability doesn't
@@ -17,7 +10,6 @@ for 0.0.1
   hardcoded stdin/stdout (should have a way to do colored error messages on
   stderr at the very least)
 - figure out rustdoc
-- figure out rustpkg
 
 future
 ======
