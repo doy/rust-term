@@ -51,21 +51,22 @@ struct Term {
     priv w: Writer,
 }
 
-pub fn Term (cleanup: bool) -> Term {
+pub fn Term () -> Term {
     info::init();
-    Term { r: Reader(cleanup), w: Writer(cleanup) }
+
+    ios::cbreak();
+    ios::echo(false);
+
+    print(escape("smkx"));
+    print(escape("smcup"));
+    print(escape("sgr0"));
+    print(escape("cnorm"));
+    print(escape("clear"));
+
+    Term { r: Reader(), w: Writer() }
 }
 
 impl Term {
-    pub fn init_term_app (&mut self) {
-        cbreak();
-        echo(false);
-        self.write(escape("smkx"));
-        self.alternate_screen(true);
-        self.clear();
-        self.flush();
-    }
-
     pub fn clear (&mut self) {
         self.w.clear();
     }
@@ -128,9 +129,20 @@ impl Term {
     }
 }
 
+impl Drop for Term {
+    fn finalize (&self) {
+        print(escape("rmkx"));
+        print(escape("rmcup"));
+        print(escape("sgr0"));
+        print(escape("cnorm"));
+
+        // XXX should really restore the previous termios mode...
+        ios::cooked();
+    }
+}
+
 struct Writer {
     priv buf: ~str,
-    priv cleanup: bool,
     priv state: AttrState,
 }
 
@@ -144,10 +156,8 @@ struct AttrState {
     blink: bool,
 }
 
-fn Writer (cleanup: bool) -> Writer {
-    let mut w = Writer { buf: ~"", cleanup: cleanup, state: AttrState() };
-    w.reset_attributes();
-    w
+fn Writer () -> Writer {
+    Writer { buf: ~"", state: AttrState() }
 }
 
 fn AttrState () -> AttrState {
@@ -323,24 +333,13 @@ impl Writer {
     }
 }
 
-impl Drop for Writer {
-    fn finalize (&self) {
-        if self.cleanup {
-            print(escape("rmcup"));
-            print(escape("sgr0"));
-            print(escape("cnorm"));
-        }
-    }
-}
-
 struct Reader {
     priv escapes: Trie<Keypress>,
     priv buf: ~str,
-    priv cleanup: bool,
 }
 
-pub fn Reader (cleanup: bool) -> Reader {
-    Reader { escapes: build_escapes_trie(), buf: ~"", cleanup: cleanup }
+pub fn Reader () -> Reader {
+    Reader { escapes: build_escapes_trie(), buf: ~"" }
 }
 
 impl Reader {
@@ -405,14 +404,6 @@ impl Reader {
         }
         let next = str::shift_char(&mut self.buf);
         return KeyCharacter(next);
-    }
-}
-
-impl Drop for Reader {
-    fn finalize (&self) {
-        if self.cleanup {
-            print(escape("rmkx"));
-        }
     }
 }
 

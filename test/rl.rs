@@ -2,14 +2,6 @@ extern mod term;
 use term::{KeyCharacter,KeyEscape,KeyUp,KeyDown,KeyLeft,KeyRight,KeyF};
 use term::{Color,ColorRed};
 
-fn term_app (body: &fn (r: &mut term::Term)) {
-    do term::ios::preserve {
-        let mut term = term::Term(true);
-        term.init_term_app();
-        body(&mut term);
-    }
-}
-
 fn draw_map (term: &mut term::Term, color: Option<Color>,
              rows: uint, cols: uint) {
     match color {
@@ -46,20 +38,22 @@ fn draw_ground (term: &mut term::Term, color: Option<Color>,
 fn main () {
     let (cols, rows) = term::size();
 
-    do term_app |term| {
+    {
+        let mut term = term::Term();
+
         let mut (x, y) = (0u, 0u);
         let mut cursor = true;
         let mut color  = None;
 
-        draw_map(term, color, rows, cols);
+        draw_map(&mut term, color, rows, cols);
 
         loop {
-            draw_character(term, None, x, y);
+            draw_character(&mut term, None, x, y);
             let k = match term.read() {
                 Some(key) => key,
                 None      => break,
             };
-            draw_ground(term, color, x, y);
+            draw_ground(&mut term, color, x, y);
 
             match k {
                 KeyCharacter('q') | KeyEscape => { break }
@@ -71,11 +65,11 @@ fn main () {
 
                 KeyF(1) => {
                     color = Some(ColorRed);
-                    draw_map(term, color, rows, cols);
+                    draw_map(&mut term, color, rows, cols);
                 }
                 KeyF(6) => {
                     color = None;
-                    draw_map(term, color, rows, cols);
+                    draw_map(&mut term, color, rows, cols);
                 }
 
                 KeyCharacter(' ') => { term.cursor(cursor); cursor = !cursor }
@@ -84,4 +78,13 @@ fn main () {
             }
         }
     }
+
+    // XXX this is here mostly to work around a really weird bug where any
+    // non-escape key quits the program. removing one of the KeyF branches
+    // in the above match statement fixes it, as does adding a print
+    // statement basically anywhere, or changing the return value of
+    // term::Term::read from "self.w.read()" to "let k = self.w.read(); k"
+    // i have basically no way to debug this, and it really doesn't sound
+    // like my fault, so i'm going to ignore it for now.
+    println("Be seeing you...");
 }
