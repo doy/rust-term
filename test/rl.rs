@@ -1,8 +1,9 @@
 extern mod term;
-use term::{KeyCharacter,KeyEscape,KeyUp,KeyDown,KeyLeft,KeyRight,KeyF};
+use term::hexes::Term;
+use term::hexes::{KeyCharacter,KeyEscape,KeyUp,KeyDown,KeyLeft,KeyRight,KeyF};
 use term::info::{Color,ColorRed};
 
-fn draw_map (term: &mut term::Term, color: Option<Color>,
+fn draw_map (term: &mut Term, color: Option<Color>,
              rows: uint, cols: uint) {
     match color {
         Some(c) => term.fg_color(c),
@@ -14,7 +15,7 @@ fn draw_map (term: &mut term::Term, color: Option<Color>,
     }
 }
 
-fn draw_character (term: &mut term::Term, color: Option<Color>,
+fn draw_character (term: &mut Term, color: Option<Color>,
                    x: uint, y: uint) {
     term.move(x, y);
     match color {
@@ -25,7 +26,7 @@ fn draw_character (term: &mut term::Term, color: Option<Color>,
     term.move(x, y);
 }
 
-fn draw_ground (term: &mut term::Term, color: Option<Color>,
+fn draw_ground (term: &mut Term, color: Option<Color>,
                 x: uint, y: uint) {
     term.move(x, y);
     match color {
@@ -39,7 +40,7 @@ fn main () {
     let (cols, rows) = term::size();
 
     {
-        let mut term = term::Term();
+        let mut term = Term();
 
         let mut (x, y) = (0u, 0u);
         let mut cursor = true;
