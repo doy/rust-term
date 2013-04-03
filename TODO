@@ -1,11 +1,5 @@
 for 0.0.1
 =========
-- error handling
-  - probably should be able to initialize the escape code trie with a lot more
-    options, and optionally disable them if the terminfo capability doesn't
-    exist
-  - some output capabilities can also be emulated if the capability doesn't
-    exist
 - should be able to do this stuff on file descriptors other than the currently
   hardcoded stdin/stdout (should have a way to do colored error messages on
   stderr at the very least)
@@ -13,6 +7,12 @@ for 0.0.1
 
 future
 ======
+- error handling
+  - probably should be able to initialize the escape code trie with a lot more
+    options, and optionally disable them if the terminfo capability doesn't
+    exist
+  - some output capabilities can also be emulated if the capability doesn't
+    exist
 - rgb colors
 - line drawing
 - scroll regions
