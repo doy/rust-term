@@ -1,16 +1,13 @@
-for 0.0.1
-=========
-- figure out rustdoc
-
-future
-======
 - error handling
   - probably should be able to initialize the escape code trie with a lot more
     options, and optionally disable them if the terminfo capability doesn't
     exist
   - some output capabilities can also be emulated if the capability doesn't
     exist
+- small built-in terminfo database, and a configure option to not link against
+  curses
 - rgb colors
 - line drawing
 - scroll regions
 - mouse?
+- windows support?
