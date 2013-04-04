@@ -314,7 +314,7 @@ struct Reader {
     priv buf: ~str,
 }
 
-pub fn Reader () -> Reader {
+fn Reader () -> Reader {
     Reader { escapes: build_escapes_trie(), buf: ~"" }
 }
 
