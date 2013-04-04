@@ -4,6 +4,7 @@ use trie::Trie;
 
 mod util;
 
+/// Keys that can be returned by `Term::read`.
 pub enum Keypress {
     KeyCharacter(char),
     KeyBackspace,
@@ -27,6 +28,11 @@ struct Term {
     priv w: Writer,
 }
 
+/**
+ * Creates a new `Term` instance.
+ *
+ * This can be used to manipulate the terminal for full screen applications.
+ */
 pub fn Term () -> Term {
     info::init();
 
@@ -43,62 +49,111 @@ pub fn Term () -> Term {
 }
 
 impl Term {
+    /// Clears the screen.
     pub fn clear (&mut self) {
         self.w.clear();
     }
 
+    /// Moves the cursor to (`col`, `row`).
     pub fn move (&mut self, col: uint, row: uint) {
         self.w.move(col, row);
     }
 
+    /// Changes the currently active foreground color to `color`.
     pub fn fg_color (&mut self, color: info::Color) {
         self.w.fg_color(color);
     }
 
+    /// Changes the currently active background color to `color`.
     pub fn bg_color (&mut self, color: info::Color) {
         self.w.bg_color(color);
     }
 
+    /// Resets the foreground and background colors to the default.
     pub fn reset_color (&mut self) {
         self.w.reset_color();
     }
 
+    /// Enables or disables underline mode.
     pub fn underline (&mut self, enabled: bool) {
         self.w.underline(enabled);
     }
 
+    /// Enables or disables standout mode.
     pub fn standout (&mut self, enabled: bool) {
         self.w.standout(enabled);
     }
 
+    /// Enables or disables reverse mode.
     pub fn reverse (&mut self, enabled: bool) {
         self.w.reverse(enabled);
     }
 
+    /// Enables or disables bold mode.
     pub fn bold (&mut self, enabled: bool) {
         self.w.bold(enabled);
     }
 
+    /// Enables or disables blink mode.
     pub fn blink (&mut self, enabled: bool) {
         self.w.blink(enabled);
     }
 
+    /// Enables or disables visible cursor mode.
     pub fn cursor (&mut self, enabled: bool) {
         self.w.cursor(enabled);
     }
 
+    /**
+     * Switches to or from the alternate screen.
+     *
+     * This is used to provide a separate place to do all of the drawing for
+     * a full screen app, so that at the end of the application, the terminal
+     * will be restored to the original state.
+     */
     pub fn alternate_screen (&mut self, enabled: bool) {
         self.w.alternate_screen(enabled);
     }
 
+    /**
+     * Write a string to the terminal.
+     *
+     * Due to buffering, using `io::print()` will not work properly. All text
+     * written to the terminal must go through the `Term` object, or the state
+     * of the screen will likely end up incorrect.
+     */
     pub fn write (&mut self, text: &str) {
         self.w.write(text);
     }
 
+    /**
+     * Flush the data written so far to the terminal.
+     *
+     * This is also done implicitly before every call to `read`, so there's
+     * not usually a reason to do it manually, other than edge cases such as
+     * timed animations.
+     */
     pub fn flush (&mut self) {
         self.w.flush();
     }
 
+    /**
+     * Read a keypress from the terminal.
+     *
+     * Returns `Some(Keypress)` if a key was read, and `None` if `stdin`
+     * reaches `eof`.
+     *
+     * Note that most special keys are actually sequences of multiple
+     * characters. This means that if a prefix of a special character key
+     * sequence was read, it has to wait to see if there are more characters
+     * coming, or if that character was the only key. Since most of these
+     * multi-character sequences start with escape, there will be a delay in
+     * reading a single `KeyEscape` keypress.
+     *
+     * Also, other special keys are represented as control keys, so for
+     * instance, `^J` will likely return `KeyReturn` instead of
+     * `KeyCtrl('j')`.
+     */
     pub fn read (&mut self) -> Option<Keypress> {
         self.w.flush();
         self.r.read()
