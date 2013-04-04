@@ -1,0 +1,147 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title>Module hexes</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="rust.css" type="text/css" />
+</head>
+<body>
+<div id="header">
+<h1 class="title">Module hexes</h1>
+</div>
+<div class='index'>
+
+<ul>
+<li><a href="#enum-keypress">Enum <code>Keypress</code></a> - Keys that can be returned by <code>Term::read</code>.</li>
+<li><a href="#implementation-for-term">Implementation <code>for Term</code></a></li>
+<li><a href="#implementation-of-drop-for-term">Implementation <code>of Drop for Term</code></a></li>
+<li><a href="#function-term">Function <code>Term</code></a> - Creates a new <code>Term</code> instance.</li>
+</ul>
+</div>
+
+<div class="section level2" id="enum-keypress">
+<h2>Enum <code>Keypress</code></h2>
+<p>Keys that can be returned by <code>Term::read</code>.</p>
+<div class="section level4" id="variants">
+<h4>Variants</h4>
+<ul>
+<li><code>KeyCharacter(char)</code></li>
+<li><code>KeyBackspace</code></li>
+<li><code>KeyReturn</code></li>
+<li><code>KeyTab</code></li>
+<li><code>KeyCtrl(char)</code></li>
+<li><code>KeyF(int)</code></li>
+<li><code>KeyUp</code></li>
+<li><code>KeyDown</code></li>
+<li><code>KeyLeft</code></li>
+<li><code>KeyRight</code></li>
+<li><code>KeyHome</code></li>
+<li><code>KeyEnd</code></li>
+<li><code>KeyInsert</code></li>
+<li><code>KeyDelete</code></li>
+<li><code>KeyEscape</code></li>
+</ul>
+</div>
+</div>
+<div class="section level2" id="implementation-for-term">
+<h2>Implementation for <code>Term</code></h2>
+<div class="section level3" id="method-clear">
+<h3>Method <code>clear</code></h3>
+<pre><code>fn clear(&amp;mut self)</code></pre>
+<p>Clears the screen.</p>
+</div>
+<div class="section level3" id="method-move">
+<h3>Method <code>move</code></h3>
+<pre><code>fn move(&amp;mut self, col: uint, row: uint)</code></pre>
+<p>Moves the cursor to (<code>col</code>, <code>row</code>).</p>
+</div>
+<div class="section level3" id="method-fg_color">
+<h3>Method <code>fg_color</code></h3>
+<pre><code>fn fg_color(&amp;mut self, color: info::Color)</code></pre>
+<p>Changes the currently active foreground color to <code>color</code>.</p>
+</div>
+<div class="section level3" id="method-bg_color">
+<h3>Method <code>bg_color</code></h3>
+<pre><code>fn bg_color(&amp;mut self, color: info::Color)</code></pre>
+<p>Changes the currently active background color to <code>color</code>.</p>
+</div>
+<div class="section level3" id="method-reset_color">
+<h3>Method <code>reset_color</code></h3>
+<pre><code>fn reset_color(&amp;mut self)</code></pre>
+<p>Resets the foreground and background colors to the default.</p>
+</div>
+<div class="section level3" id="method-underline">
+<h3>Method <code>underline</code></h3>
+<pre><code>fn underline(&amp;mut self, enabled: bool)</code></pre>
+<p>Enables or disables underline mode.</p>
+</div>
+<div class="section level3" id="method-standout">
+<h3>Method <code>standout</code></h3>
+<pre><code>fn standout(&amp;mut self, enabled: bool)</code></pre>
+<p>Enables or disables standout mode.</p>
+</div>
+<div class="section level3" id="method-reverse">
+<h3>Method <code>reverse</code></h3>
+<pre><code>fn reverse(&amp;mut self, enabled: bool)</code></pre>
+<p>Enables or disables reverse mode.</p>
+</div>
+<div class="section level3" id="method-bold">
+<h3>Method <code>bold</code></h3>
+<pre><code>fn bold(&amp;mut self, enabled: bool)</code></pre>
+<p>Enables or disables bold mode.</p>
+</div>
+<div class="section level3" id="method-blink">
+<h3>Method <code>blink</code></h3>
+<pre><code>fn blink(&amp;mut self, enabled: bool)</code></pre>
+<p>Enables or disables blink mode.</p>
+</div>
+<div class="section level3" id="method-cursor">
+<h3>Method <code>cursor</code></h3>
+<pre><code>fn cursor(&amp;mut self, enabled: bool)</code></pre>
+<p>Enables or disables visible cursor mode.</p>
+</div>
+<div class="section level3" id="method-alternate_screen">
+<h3>Method <code>alternate_screen</code></h3>
+<pre><code>fn alternate_screen(&amp;mut self, enabled: bool)</code></pre>
+<p>Switches to or from the alternate screen.</p>
+<p>This is used to provide a separate place to do all of the drawing for a full screen app, so that at the end of the application, the terminal will be restored to the original state.</p>
+</div>
+<div class="section level3" id="method-write">
+<h3>Method <code>write</code></h3>
+<pre><code>fn write(&amp;mut self, text: &amp;str)</code></pre>
+<p>Write a string to the terminal.</p>
+<p>Due to buffering, using <code>io::print()</code> will not work properly. All text written to the terminal must go through the <code>Term</code> object, or the state of the screen will likely end up incorrect.</p>
+</div>
+<div class="section level3" id="method-flush">
+<h3>Method <code>flush</code></h3>
+<pre><code>fn flush(&amp;mut self)</code></pre>
+<p>Flush the data written so far to the terminal.</p>
+<p>This is also done implicitly before every call to <code>read</code>, so there's not usually a reason to do it manually, other than edge cases such as timed animations.</p>
+</div>
+<div class="section level3" id="method-read">
+<h3>Method <code>read</code></h3>
+<pre><code>fn read(&amp;mut self) -&gt; Option&lt;Keypress&gt;</code></pre>
+<p>Read a keypress from the terminal.</p>
+<p>Returns <code>Some(Keypress)</code> if a key was read, and <code>None</code> if <code>stdin</code> reaches <code>eof</code>.</p>
+<p>Note that most special keys are actually sequences of multiple characters. This means that if a prefix of a special character key sequence was read, it has to wait to see if there are more characters coming, or if that character was the only key. Since most of these multi-character sequences start with escape, there will be a delay in reading a single <code>KeyEscape</code> keypress.</p>
+<p>Also, other special keys are represented as control keys, so for instance, <code>^J</code> will likely return <code>KeyReturn</code> instead of <code>KeyCtrl('j')</code>.</p>
+</div>
+</div>
+<div class="section level2" id="implementation-of-drop-for-term">
+<h2>Implementation of <code>Drop</code> for <code>Term</code></h2>
+<div class="section level3" id="method-finalize">
+<h3>Method <code>finalize</code></h3>
+<pre><code>fn finalize(&amp;self)</code></pre>
+</div>
+</div>
+<div class="section level2" id="function-term">
+<h2>Function <code>Term</code></h2>
+<pre><code>fn Term() -&gt; Term</code></pre>
+<p>Creates a new <code>Term</code> instance.</p>
+<p>This can be used to manipulate the terminal for full screen applications.</p>
+</div>
+</body>
+</html>

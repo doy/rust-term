@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title>Module ios</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="rust.css" type="text/css" />
+</head>
+<body>
+<div id="header">
+<h1 class="title">Module ios</h1>
+</div>
+<div class='index'>
+
+<ul>
+<li><a href="#function-cbreak">Function <code>cbreak</code></a> - Put the terminal into cbreak mode.</li>
+<li><a href="#function-cooked">Function <code>cooked</code></a> - Put the terminal into cooked mode.</li>
+<li><a href="#function-echo">Function <code>echo</code></a> - Change the echo mode of the terminal.</li>
+<li><a href="#function-preserve">Function <code>preserve</code></a> - Run a block of code, restoring the terminal state when the block ends.</li>
+<li><a href="#function-raw">Function <code>raw</code></a> - Put the terminal into raw mode.</li>
+</ul>
+</div>
+
+<div class="section level2" id="function-cbreak">
+<h2>Function <code>cbreak</code></h2>
+<pre><code>fn cbreak() -&gt; int</code></pre>
+<p>Put the terminal into cbreak mode.</p>
+<p>This is the normal unbuffered mode.</p>
+</div>
+<div class="section level2" id="function-cooked">
+<h2>Function <code>cooked</code></h2>
+<pre><code>fn cooked() -&gt; int</code></pre>
+<p>Put the terminal into cooked mode.</p>
+<p>This is the normal line-buffered mode.</p>
+</div>
+<div class="section level2" id="function-echo">
+<h2>Function <code>echo</code></h2>
+<pre><code>fn echo(enable: bool) -&gt; int</code></pre>
+<p>Change the echo mode of the terminal.</p>
+<p><code>true</code> turns echo on, and <code>false</code> turns echo off.</p>
+</div>
+<div class="section level2" id="function-preserve">
+<h2>Function <code>preserve</code></h2>
+<pre><code>fn preserve&lt;T&gt;(body: &amp;fn() -&gt; T) -&gt; T</code></pre>
+<p>Run a block of code, restoring the terminal state when the block ends.</p>
+<p>This will ensure you don't leave the terminal in a broken state, even if the current task fails.</p>
+</div>
+<div class="section level2" id="function-raw">
+<h2>Function <code>raw</code></h2>
+<pre><code>fn raw() -&gt; int</code></pre>
+<p>Put the terminal into raw mode.</p>
+<p>This is like cbreak mode, except that control characters (like ^C) are not translated into signals.</p>
+</div>
+</body>
+</html>
