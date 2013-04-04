@@ -4,7 +4,7 @@ use trie::Trie;
 
 mod util;
 
-enum Keypress {
+pub enum Keypress {
     KeyCharacter(char),
     KeyBackspace,
     KeyReturn,
