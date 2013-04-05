@@ -39,10 +39,15 @@ pub fn Term () -> Term {
     cbreak();
     echo(false);
 
-    print(info::keypad_xmit());
-    print(info::enter_ca_mode());
-    print(info::exit_attribute_mode());
-    print(info::cursor_normal());
+    // XXX need to come up with a better way to handle optional caps
+    // should be able to use something like has_keypad_xmit or something
+    for ["smkx", "smcup", "sgr0", "cnorm"].each() |&cap| {
+        match info::escape(cap) {
+            Some(e) => print(e),
+            None    => (), // not a big deal if these don't exist
+        }
+    }
+
     print(info::clear_screen());
 
     Term { r: Reader(), w: Writer() }
@@ -162,10 +167,14 @@ impl Term {
 
 impl Drop for Term {
     fn finalize (&self) {
-        print(info::keypad_local());
-        print(info::exit_ca_mode());
-        print(info::exit_attribute_mode());
-        print(info::cursor_normal());
+        // XXX need to come up with a better way to handle optional caps
+        // should be able to use something like has_keypad_xmit or something
+        for ["rmkx", "rmcup", "sgr0", "cnorm"].each() |&cap| {
+            match info::escape(cap) {
+                Some(e) => print(e),
+                None    => (), // not a big deal if these don't exist
+            }
+        }
 
         // XXX should really restore the previous termios mode...
         cooked();

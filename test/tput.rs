@@ -6,5 +6,9 @@ fn main () {
     }
 
     term::info::init();
-    print(term::info::escape(os::args()[1]));
+    let attr: &str = os::args()[1];
+    let escape = term::info::escape(attr).expect(
+        fmt!("%s is not supported on this terminal", attr)
+    );
+    print(escape);
 }
