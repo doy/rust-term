@@ -162,7 +162,7 @@ impl Term {
 
 impl Drop for Term {
     fn finalize (&self) {
-        print(info::keypad_xmit());
+        print(info::keypad_local());
         print(info::exit_ca_mode());
         print(info::exit_attribute_mode());
         print(info::cursor_normal());
