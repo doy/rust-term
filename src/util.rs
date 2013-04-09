@@ -1,6 +1,9 @@
 use core::libc::c_int;
 
 // XXX huge hack until there's a better built-in way to do this
+// can't use core::pipes::select or core::comm::selecti because there's no
+// way to get a background task to quit if it's blocking on an io call
+// this will need to wait on the real libuv bindings
 pub fn timed_read (timeout: int) -> Option<char> {
     let first = unsafe { io_helper::timed_read(timeout as c_int) };
     if first < 0 {

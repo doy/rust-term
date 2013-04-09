@@ -245,6 +245,8 @@ extern mod c {
 }
 
 // tiparm uses varargs, which you can't bind from rust yet
+// actually, you sort of probably can? there's just an llvm assertion that
+// prevents multiple bindings to the same function from working (rust/#5791)
 #[link_name = "curses_helper"]
 extern mod helper {
     fn tiparm1(s: *c_char, p1: c_int) -> *c_char;
