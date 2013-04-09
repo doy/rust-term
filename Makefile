@@ -1,7 +1,7 @@
 RUSTC = rustc
 
 MAIN_SOURCE = src/term.rs
-OTHER_SOURCES = src/hexes.rs src/ios.rs src/info.rs src/util.rs src/trie.rs src/guard.rs
+OTHER_SOURCES = src/hexes.rs src/ios.rs src/info.rs src/util.rs src/trie.rs
 TESTS = bin/termios bin/termios2 bin/termios3 bin/rl bin/password bin/attrs bin/tput
 
 all: build tests

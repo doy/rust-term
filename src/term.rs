@@ -12,4 +12,3 @@ pub mod info;
 pub mod ios;
 mod trie;
 mod util;
-mod guard;

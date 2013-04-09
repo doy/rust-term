@@ -1,5 +1,5 @@
 use core::libc::{c_int,c_void};
-use guard::guard;
+use core::unstable::finally::Finally;
 
 /**
  * Put the terminal into cooked mode.
@@ -46,8 +46,10 @@ pub fn echo (enable: bool) -> int {
  */
 pub fn preserve<T> (body: &fn () -> T) -> T {
     let orig = unsafe { c::get() };
-    do guard(|| { unsafe { c::set(orig) } }) {
+    do(|| {
         body()
+    }).finally {
+        unsafe { c::set(orig) };
     }
 }
 
