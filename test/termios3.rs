@@ -1,11 +1,13 @@
 extern mod term;
 
 fn main () {
-    if term::isatty() {
-        let (cols, rows) = term::size();
-        println(fmt!("tty: %d %d", cols as int, rows as int));
-    }
-    else {
-        println("not tty");
+    match io::stdout().get_type() {
+        io::Screen => {
+            let (cols, rows) = term::size();
+            println(fmt!("tty: %d %d", cols as int, rows as int));
+        }
+        io::File => {
+            println("not tty");
+        }
     }
 }

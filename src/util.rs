@@ -37,12 +37,3 @@ pub fn size() -> (uint, uint) {
 extern mod termios_wrapper {
     fn size(cols: *c_uint, rows: *c_uint);
 }
-
-pub fn isatty() -> bool {
-    unsafe { c_isatty(0) as bool }
-}
-
-extern {
-    #[link_name = "isatty"]
-    fn c_isatty(fd: c_int) -> c_int;
-}

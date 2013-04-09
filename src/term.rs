@@ -5,7 +5,7 @@
 
 #[crate_type = "lib"];
 
-pub use util::{isatty,size};
+pub use util::size;
 
 pub mod hexes;
 pub mod info;
