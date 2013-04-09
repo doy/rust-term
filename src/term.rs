@@ -5,8 +5,6 @@
 
 #[crate_type = "lib"];
 
-pub use util::size;
-
 pub mod hexes;
 pub mod info;
 pub mod ios;

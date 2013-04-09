@@ -1,4 +1,4 @@
-use core::libc::{c_int,c_uint};
+use core::libc::c_int;
 
 // XXX huge hack until there's a better built-in way to do this
 pub fn timed_read (timeout: int) -> Option<char> {
@@ -23,17 +23,4 @@ pub fn timed_read (timeout: int) -> Option<char> {
 
 extern mod io_helper {
     fn timed_read (timeout: c_int) -> c_int;
-}
-
-pub fn size() -> (uint, uint) {
-    let cols: c_uint = 0;
-    let rows: c_uint = 0;
-    unsafe {
-        termios_wrapper::size(&cols, &rows)
-    }
-    (cols as uint, rows as uint)
-}
-
-extern mod termios_wrapper {
-    fn size(cols: *c_uint, rows: *c_uint);
 }

@@ -1,4 +1,4 @@
-use core::libc::{c_int,c_void};
+use core::libc::{c_int,c_uint,c_void};
 use core::unstable::finally::Finally;
 
 /**
@@ -53,6 +53,16 @@ pub fn preserve<T> (body: &fn () -> T) -> T {
     }
 }
 
+/// Returns the size of the terminal, as `(columns, rows)`.
+pub fn size() -> (uint, uint) {
+    let cols: c_uint = 0;
+    let rows: c_uint = 0;
+    unsafe {
+        c::size(&cols, &rows)
+    }
+    (cols as uint, rows as uint)
+}
+
 #[link_name = "termios_wrapper"]
 extern mod c {
     fn cooked () -> c_int;
@@ -62,4 +72,6 @@ extern mod c {
 
     fn get() -> *c_void;
     fn set(t: *c_void);
+
+    fn size(cols: *c_uint, rows: *c_uint);
 }

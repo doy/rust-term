@@ -37,7 +37,7 @@ fn draw_ground (term: &mut Term, color: Option<Color>,
 }
 
 fn main () {
-    let (cols, rows) = term::size();
+    let (cols, rows) = term::ios::size();
 
     {
         let mut term = Term();
