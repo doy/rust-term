@@ -40,7 +40,7 @@ fn main () {
     let (cols, rows) = term::ios::size();
 
     {
-        let mut term = Term();
+        let mut term = Term::new();
 
         let mut (x, y) = (0u, 0u);
         let mut cursor = true;

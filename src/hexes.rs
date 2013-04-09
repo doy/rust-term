@@ -28,32 +28,33 @@ struct Term {
     priv w: Writer,
 }
 
-/**
- * Creates a new `Term` instance.
- *
- * This can be used to manipulate the terminal for full screen applications.
- */
-pub fn Term () -> Term {
-    info::init();
+impl Term {
+    /**
+    * Creates a new `Term` instance.
+    *
+    * This can be used to manipulate the terminal for full screen
+    * applications.
+    */
+    pub fn new () -> Term {
+        info::init();
 
-    cbreak();
-    echo(false);
+        cbreak();
+        echo(false);
 
-    // XXX need to come up with a better way to handle optional caps
-    // should be able to use something like has_keypad_xmit or something
-    for ["smkx", "smcup", "sgr0", "cnorm"].each() |&cap| {
-        match info::escape(cap) {
-            Some(e) => print(e),
-            None    => (), // not a big deal if these don't exist
+        // XXX need to come up with a better way to handle optional caps
+        // should be able to use something like has_keypad_xmit or something
+        for ["smkx", "smcup", "sgr0", "cnorm"].each() |&cap| {
+            match info::escape(cap) {
+                Some(e) => print(e),
+                None    => (), // not a big deal if these don't exist
+            }
         }
+
+        print(info::clear_screen());
+
+        Term { r: Reader::new(), w: Writer::new() }
     }
 
-    print(info::clear_screen());
-
-    Term { r: Reader(), w: Writer() }
-}
-
-impl Term {
     /// Clears the screen.
     pub fn clear (&mut self) {
         self.w.clear();
@@ -196,10 +197,6 @@ struct AttrState {
     blink: bool,
 }
 
-fn Writer () -> Writer {
-    Writer { buf: ~"", state: AttrState() }
-}
-
 fn AttrState () -> AttrState {
     AttrState {
         fg: None,
@@ -213,6 +210,10 @@ fn AttrState () -> AttrState {
 }
 
 impl Writer {
+    fn new () -> Writer {
+        Writer { buf: ~"", state: AttrState() }
+    }
+
     fn clear (&mut self) {
         self.buf.push_str(info::clear_screen());
     }
@@ -378,11 +379,11 @@ struct Reader {
     priv buf: ~str,
 }
 
-fn Reader () -> Reader {
-    Reader { escapes: build_escapes_trie(), buf: ~"" }
-}
-
 impl Reader {
+    fn new () -> Reader {
+        Reader { escapes: build_escapes_trie(), buf: ~"" }
+    }
+
     fn read (&mut self) -> Option<Keypress> {
         if self.buf.len() > 0 {
             return Some(self.next_key());
