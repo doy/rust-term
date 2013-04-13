@@ -6,7 +6,15 @@
 #[crate_type = "lib"];
 
 pub mod hexes;
-pub mod info;
 pub mod ios;
+
+#[cfg(curses)]
+#[path = "info/curses.rs"]
+pub mod info;
+
+#[cfg(not(curses))]
+#[path = "info/builtin.rs"]
+pub mod info;
+
 mod trie;
 mod util;
