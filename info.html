@@ -146,18 +146,18 @@
 </div>
 <div class="section level2" id="function-escape">
 <h2>Function <code>escape</code></h2>
-<pre><code>fn escape(name: &amp;str) -&gt; ~str</code></pre>
+<pre><code>fn escape(name: &amp;str) -&gt; Option&lt;~str&gt;</code></pre>
 <p>The terminal escape corresponding to the <code>name</code> terminfo capability.</p>
 </div>
 <div class="section level2" id="function-escape1">
 <h2>Function <code>escape1</code></h2>
-<pre><code>fn escape1(name: &amp;str, p1: int) -&gt; ~str</code></pre>
+<pre><code>fn escape1(name: &amp;str, p1: int) -&gt; Option&lt;~str&gt;</code></pre>
 <p>The terminal escape corresponding to the <code>name</code> terminfo capability.</p>
 <p>This capability must take one parameter, which should be passed as <code>p1</code>.</p>
 </div>
 <div class="section level2" id="function-escape2">
 <h2>Function <code>escape2</code></h2>
-<pre><code>fn escape2(name: &amp;str, p1: int, p2: int) -&gt; ~str</code></pre>
+<pre><code>fn escape2(name: &amp;str, p1: int, p2: int) -&gt; Option&lt;~str&gt;</code></pre>
 <p>The terminal escape corresponding to the <code>name</code> terminfo capability.</p>
 <p>This capability must take two parameters, which should be passed as <code>p1</code> and <code>p2</code>.</p>
 </div>

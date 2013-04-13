@@ -20,6 +20,7 @@
 <li><a href="#function-echo">Function <code>echo</code></a> - Change the echo mode of the terminal.</li>
 <li><a href="#function-preserve">Function <code>preserve</code></a> - Run a block of code, restoring the terminal state when the block ends.</li>
 <li><a href="#function-raw">Function <code>raw</code></a> - Put the terminal into raw mode.</li>
+<li><a href="#function-size">Function <code>size</code></a> - Returns the size of the terminal, as <code>(columns, rows)</code>.</li>
 </ul>
 </div>
 
@@ -52,6 +53,11 @@
 <pre><code>fn raw() -&gt; int</code></pre>
 <p>Put the terminal into raw mode.</p>
 <p>This is like cbreak mode, except that control characters (like ^C) are not translated into signals.</p>
+</div>
+<div class="section level2" id="function-size">
+<h2>Function <code>size</code></h2>
+<pre><code>fn size() -&gt; (uint, uint)</code></pre>
+<p>Returns the size of the terminal, as <code>(columns, rows)</code>.</p>
 </div>
 </body>
 </html>
