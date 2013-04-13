@@ -1,4 +1,4 @@
-use core::libc::{c_char,c_int};
+use core::libc::{c_char,c_int,c_long};
 
 /// The default colors available on a terminal emulator.
 #[deriving(Eq)]
@@ -185,7 +185,7 @@ pub fn escape1 (name: &str, p1: int) -> Option<~str> {
                 None
             }
             else {
-                Some(str::raw::from_c_str(tiparm1(e, p1)))
+                Some(str::raw::from_c_str(tparm1(e, p1)))
             }
         }
     }
@@ -205,7 +205,7 @@ pub fn escape2 (name: &str, p1: int, p2: int) -> Option<~str> {
                 None
             }
             else {
-                Some(str::raw::from_c_str(tiparm2(e, p1, p2)))
+                Some(str::raw::from_c_str(tparm2(e, p1, p2)))
             }
         }
     }
@@ -220,8 +220,8 @@ unsafe fn tigetstr (name: *c_char) -> *c_char {
     c_out
 }
 
-unsafe fn tiparm1 (name: *c_char, p1: int) -> *c_char {
-    let ret = helper::tiparm1(name, p1 as c_int);
+unsafe fn tparm1 (name: *c_char, p1: int) -> *c_char {
+    let ret = c::tparm(name, p1 as c_long, 0, 0, 0, 0, 0, 0, 0, 0);
     if ret == ptr::null() {
         fail!(fmt!("Couldn't assemble parameters with %s %d",
                    unsafe { str::raw::from_c_str(name) }, p1));
@@ -229,8 +229,8 @@ unsafe fn tiparm1 (name: *c_char, p1: int) -> *c_char {
     ret
 }
 
-unsafe fn tiparm2 (name: *c_char, p1: int, p2: int) -> *c_char {
-    let ret = helper::tiparm2(name, p1 as c_int, p2 as c_int);
+unsafe fn tparm2 (name: *c_char, p1: int, p2: int) -> *c_char {
+    let ret = c::tparm(name, p1 as c_long, p2 as c_long, 0, 0, 0, 0, 0, 0, 0);
     if ret == ptr::null() {
         fail!(fmt!("Couldn't assemble parameters with %s %d %d",
                    unsafe { str::raw::from_c_str(name) }, p1, p2));
@@ -242,13 +242,8 @@ unsafe fn tiparm2 (name: *c_char, p1: int, p2: int) -> *c_char {
 extern mod c {
     fn setupterm (term: *c_char, fd: c_int, errret: *c_int) -> c_int;
     fn tigetstr (s: *c_char) -> *c_char;
-}
-
-// tiparm uses varargs, which you can't bind from rust yet
-// actually, you sort of probably can? there's just an llvm assertion that
-// prevents multiple bindings to the same function from working (rust/#5791)
-#[link_name = "curses_helper"]
-extern mod helper {
-    fn tiparm1(s: *c_char, p1: c_int) -> *c_char;
-    fn tiparm2(s: *c_char, p1: c_int, p2: c_int) -> *c_char;
+    fn tparm (s: *c_char,
+              a1: c_long, a2: c_long, a3: c_long,
+              a4: c_long, a5: c_long, a6: c_long,
+              a7: c_long, a8: c_long, a9: c_long) -> *c_char;
 }

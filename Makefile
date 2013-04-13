@@ -19,23 +19,16 @@ bin/%: test/%.rs tmp/built
 	@mkdir -p bin
 	$(RUSTC) --out-dir bin -L lib $<
 
-tmp/built: $(MAIN_SOURCE) $(OTHER_SOURCES) tmp/libtermios_wrapper.a tmp/libcurses_helper.a tmp/libio_helper.a
+tmp/built: $(MAIN_SOURCE) $(OTHER_SOURCES) tmp/libtermios_wrapper.a tmp/libio_helper.a
 	@mkdir -p lib
 	$(RUSTC) --out-dir lib -L tmp $(MAIN_SOURCE) && touch tmp/built
 
-clibs: tmp/libtermios_wrapper.a tmp/libcurses_helper.a tmp/libio_helper.a
+clibs: tmp/libtermios_wrapper.a tmp/libio_helper.a
 
 tmp/libtermios_wrapper.a: tmp/termios_wrapper.o
 	ar cr $@ $<
 
 tmp/termios_wrapper.o: src/termios_wrapper.c
-	@mkdir -p tmp
-	cc -fPIC -c -o $@ $<
-
-tmp/libcurses_helper.a: tmp/curses_helper.o
-	ar cr $@ $<
-
-tmp/curses_helper.o: src/curses_helper.c
 	@mkdir -p tmp
 	cc -fPIC -c -o $@ $<
 
