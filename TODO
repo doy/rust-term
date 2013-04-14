@@ -4,10 +4,11 @@
     exist
   - some output capabilities can also be emulated if the capability doesn't
     exist
-- small built-in terminfo database, and a configure option to not link against
-  curses
+- the builtin backend should be able to attempt to dynamically load
+  libcurses.so if it sees a terminal or capability it doesn't recognize
+- character-by-character trie traversal
 - rgb colors
 - line drawing
 - scroll regions
 - mouse?
-- windows support?
+- windows support? only for hexes, probably
