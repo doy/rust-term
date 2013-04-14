@@ -6,6 +6,7 @@
     exist
 - the builtin backend should be able to attempt to dynamically load
   libcurses.so if it sees a terminal or capability it doesn't recognize
+  this is probably blocked on rust/#458
 - character-by-character trie traversal
 - rgb colors
 - line drawing
