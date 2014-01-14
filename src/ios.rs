@@ -1,5 +1,21 @@
-use core::libc::{c_int,c_uint,c_void};
-use core::unstable::finally::Finally;
+use std::libc::{c_int,c_uint,c_void};
+use std::unstable::finally::Finally;
+
+
+#[link(name = "termios_wrapper")]
+mod c {
+    extern {
+        fn cooked () -> c_int;
+        fn cbreak () -> c_int;
+        fn raw () -> c_int;
+        fn echo (enable: c_int) -> c_int;
+
+        fn get() -> *c_void;
+        fn set(t: *c_void);
+
+        fn size(cols: *c_uint, rows: *c_uint);
+    }
+}
 
 /**
  * Put the terminal into cooked mode.
@@ -44,7 +60,7 @@ pub fn echo (enable: bool) -> int {
  * This will ensure you don't leave the terminal in a broken state, even if
  * the current task fails.
  */
-pub fn preserve<T> (body: &fn () -> T) -> T {
+pub fn preserve<T> (body: || -> T) -> T {
     let orig = unsafe { c::get() };
     do(|| {
         body()
@@ -61,17 +77,4 @@ pub fn size() -> (uint, uint) {
         c::size(&cols, &rows)
     }
     (cols as uint, rows as uint)
-}
-
-#[link_name = "termios_wrapper"]
-extern mod c {
-    fn cooked () -> c_int;
-    fn cbreak () -> c_int;
-    fn raw () -> c_int;
-    fn echo (enable: c_int) -> c_int;
-
-    fn get() -> *c_void;
-    fn set(t: *c_void);
-
-    fn size(cols: *c_uint, rows: *c_uint);
 }

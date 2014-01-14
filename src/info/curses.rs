@@ -1,4 +1,7 @@
-use core::libc::{c_char,c_int,c_long};
+#[link_name = "curses"]
+extern mod c;
+
+use std::libc::{c_char,c_int,c_long};
 
 /// The default colors available on a terminal emulator.
 #[deriving(Eq)]
@@ -238,12 +241,3 @@ unsafe fn tparm2 (name: *c_char, p1: int, p2: int) -> *c_char {
     ret
 }
 
-#[link_name = "curses"]
-extern mod c {
-    fn setupterm (term: *c_char, fd: c_int, errret: *c_int) -> c_int;
-    fn tigetstr (s: *c_char) -> *c_char;
-    fn tparm (s: *c_char,
-              a1: c_long, a2: c_long, a3: c_long,
-              a4: c_long, a5: c_long, a6: c_long,
-              a7: c_long, a8: c_long, a9: c_long) -> *c_char;
-}

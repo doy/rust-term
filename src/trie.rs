@@ -1,4 +1,4 @@
-use core::util::swap;
+use std::util::swap;
 
 // XXX turn this into a radix trie, probably
 struct Trie<T> {
@@ -70,7 +70,7 @@ impl<T> Trie<T> {
         }
     }
 
-    pub fn find (&self, s: &str) -> &'self Option<T> {
+    pub fn find (&self, s: &str) -> &Option<T> {
         let bytes = str::as_bytes_slice(s);
         let (prefix_length, node) = self.root.find_prefix_trie(bytes);
 
@@ -114,7 +114,7 @@ impl<T> Trie<T> {
 }
 
 impl<T> TrieNode<T> {
-    fn find_prefix_trie (&self, bytes: &[u8]) -> (uint, &'self TrieNode<T>) {
+    fn find_prefix_trie (&self, bytes: &[u8]) -> (uint, &TrieNode<T>) {
         if bytes.len() == 0 {
             (0u, self)
         }
