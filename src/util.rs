@@ -26,8 +26,8 @@ pub fn timed_read (timeout: int) -> Option<char> {
     Some(unsafe { str::raw::from_byte(buf[0]) }.char_at(0))
 }
 
-#[link(name = "io_helper")]
 mod io_helper {
+#[link(name = "io_helper")]
     extern {
         pub fn timed_read (timeout: i32) -> i32;
     }
