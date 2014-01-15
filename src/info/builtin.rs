@@ -1,3 +1,5 @@
+use std::{os, str};
+
 /// The default colors available on a terminal emulator.
 #[deriving(Eq)]
 pub enum Color {
@@ -588,11 +590,11 @@ pub fn escape (name: &str) -> Option<~str> {
 }
 
 pub fn escape1 (name: &str, p1: int) -> Option<~str> {
-    escape(name).map(|&s| { tparm1(s, p1) })
+    escape(name).map(|s| { tparm1(s, p1) })
 }
 
 pub fn escape2 (name: &str, p1: int, p2: int) -> Option<~str> {
-    escape(name).map(|&s| { tparm2(s, p1, p2) })
+    escape(name).map(|s| { tparm2(s, p1, p2) })
 }
 
 fn escape_cap (cap: Capability) -> Option<~str> {

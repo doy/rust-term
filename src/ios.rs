@@ -1,19 +1,18 @@
-use std::libc::{c_int,c_uint,c_void};
 use std::unstable::finally::Finally;
 
 
-#[link(name = "termios_wrapper")]
 mod c {
+#[link(name = "termios_wrapper")]
     extern {
-        fn cooked () -> c_int;
-        fn cbreak () -> c_int;
-        fn raw () -> c_int;
-        fn echo (enable: c_int) -> c_int;
+        pub fn cooked () -> i32;
+        pub fn cbreak () -> i32;
+        pub fn raw () -> i32;
+        pub fn echo (enable: i32) -> i32;
 
-        fn get() -> *c_void;
-        fn set(t: *c_void);
+        pub fn get() -> uint;
+        pub fn set(t: uint);
 
-        fn size(cols: *c_uint, rows: *c_uint);
+        pub fn size(cols: *u32, rows: *u32);
     }
 }
 
@@ -51,7 +50,7 @@ pub fn raw () -> int {
  * `true` turns echo on, and `false` turns echo off.
  */
 pub fn echo (enable: bool) -> int {
-    unsafe { c::echo(enable as c_int) as int }
+    unsafe { c::echo(enable as i32) as int }
 }
 
 /**
@@ -62,17 +61,15 @@ pub fn echo (enable: bool) -> int {
  */
 pub fn preserve<T> (body: || -> T) -> T {
     let orig = unsafe { c::get() };
-    do(|| {
-        body()
-    }).finally {
-        unsafe { c::set(orig) };
-    }
+    let returned = body();
+    unsafe { c::set(orig) };
+    returned
 }
 
 /// Returns the size of the terminal, as `(columns, rows)`.
 pub fn size() -> (uint, uint) {
-    let cols: c_uint = 0;
-    let rows: c_uint = 0;
+    let cols: u32 = 0;
+    let rows: u32 = 0;
     unsafe {
         c::size(&cols, &rows)
     }

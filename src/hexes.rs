@@ -1,6 +1,7 @@
 use info;
 use ios::{cooked,cbreak,echo};
 use trie::Trie;
+use std::{str, uint, iter, io};
 
 mod util;
 
@@ -43,7 +44,8 @@ impl Term {
 
         // XXX need to come up with a better way to handle optional caps
         // should be able to use something like has_keypad_xmit or something
-        for &cap in ["smkx", "smcup", "sgr0", "cnorm"] {
+        let terms = ["smkx", "smcup", "sgr0", "cnorm"];
+        for &cap in terms.iter() {
             match info::escape(cap) {
                 Some(e) => print(e),
                 None    => (), // not a big deal if these don't exist
@@ -167,10 +169,11 @@ impl Term {
 }
 
 impl Drop for Term {
-    fn finalize (&self) {
+    fn drop (&mut self) {
         // XXX need to come up with a better way to handle optional caps
         // should be able to use something like has_keypad_xmit or something
-        for &cap in ["rmkx", "rmcup", "sgr0", "cnorm"] {
+        let terms = ["rmkx", "rmcup", "sgr0", "cnorm"];
+        for &cap in terms.iter() {
             match info::escape(cap) {
                 Some(e) => print(e),
                 None    => (), // not a big deal if these don't exist
@@ -432,18 +435,18 @@ impl Reader {
 
     fn next_key (&mut self) -> Keypress {
         assert!(self.buf.len() > 0);
-        for i in uint::range_rev(self.buf.len(), 0) {
+        for i in iter::range(0, self.buf.len()) {
             match self.escapes.find(self.buf.slice(0, i)) {
                 &Some(k) => {
-                    for _ in uint::range(0, i) {
-                        str::shift_char(&mut self.buf);
+                    for _ in iter::range(0, i) {
+                        self.buf.shift_char();
                     }
                     return k
                 }
                 &None    => { }
             }
         }
-        let next = str::shift_char(&mut self.buf);
+        let next = self.buf.shift_char();
         return KeyCharacter(next);
     }
 }
@@ -466,18 +469,18 @@ fn build_escapes_trie () -> Trie<Keypress> {
     trie.insert(info::key_ic(), KeyInsert);
     trie.insert(info::key_dc(), KeyDelete);
 
-    for i in uint::range(1, 12) {
+    for i in iter::range(1u, 12u) {
         trie.insert(info::key_f(i), KeyF(i as int));
     }
 
-    for i in uint::range(1, 26) {
+    for i in iter::range(1u8, 26u8) {
         let s = str::from_char(i as char);
         if (trie.find(s).is_none()) {
             trie.insert(s, KeyCtrl(i as char));
         }
     }
 
-    trie.insert(str::from_char(27 as char), KeyEscape);
+    trie.insert(str::from_char(27u8 as char), KeyEscape);
 
     trie
 }

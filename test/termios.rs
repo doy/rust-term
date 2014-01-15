@@ -1,4 +1,5 @@
 extern mod term;
+use std::os;
 
 fn main () {
     match os::args()[1] {
