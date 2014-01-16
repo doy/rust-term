@@ -3,19 +3,14 @@ use std::io::buffered::BufferedReader;
 use std::io;
 
 fn main () {
+    term::info::init();
     println(term::info::exit_attribute_mode());
+    let mut reader = BufferedReader::new(io::stdin());
     loop {
-        println("Attribute? ");
-
-        term::info::enter_underline_mode();
-        term::info::enter_standout_mode();
-        term::info::set_a_background(term::info::ColorMagenta);
-        term::info::set_a_foreground(term::info::ColorGreen);
-        let mut reader = BufferedReader::new(io::stdin());
-        let attr = reader.read_line().unwrap_or(~"nothing");
-
+        println("Attribute?");
+        let mut attr = reader.read_line().unwrap_or(~"");
+        attr = attr.replace("\n", "");
         if attr.starts_with("fg:") || attr.starts_with("bg:") {
-            println("Starts with fg or bg");
             let set = if attr.starts_with("fg:") {
                 |c| { println(term::info::set_a_foreground(c)) }
             }
