@@ -24,7 +24,7 @@ pub enum Keypress {
     KeyEscape,
 }
 
-struct Term {
+pub struct Term {
     priv r: Reader,
     priv w: Writer,
 }
