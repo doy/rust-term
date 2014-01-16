@@ -1,5 +1,20 @@
-use core::libc::{c_int,c_uint,c_void};
-use core::unstable::finally::Finally;
+use std::unstable::finally::Finally;
+
+
+mod c {
+#[link(name = "termios_wrapper")]
+    extern {
+        pub fn cooked () -> i32;
+        pub fn cbreak () -> i32;
+        pub fn raw () -> i32;
+        pub fn echo (enable: i32) -> i32;
+
+        pub fn get() -> uint;
+        pub fn set(t: uint);
+
+        pub fn size(cols: *u32, rows: *u32);
+    }
+}
 
 /**
  * Put the terminal into cooked mode.
@@ -35,7 +50,7 @@ pub fn raw () -> int {
  * `true` turns echo on, and `false` turns echo off.
  */
 pub fn echo (enable: bool) -> int {
-    unsafe { c::echo(enable as c_int) as int }
+    unsafe { c::echo(enable as i32) as int }
 }
 
 /**
@@ -44,34 +59,19 @@ pub fn echo (enable: bool) -> int {
  * This will ensure you don't leave the terminal in a broken state, even if
  * the current task fails.
  */
-pub fn preserve<T> (body: &fn () -> T) -> T {
+pub fn preserve<T> (body: || -> T) -> T {
     let orig = unsafe { c::get() };
-    do(|| {
-        body()
-    }).finally {
+    body.finally(|| {
         unsafe { c::set(orig) };
-    }
+    })
 }
 
 /// Returns the size of the terminal, as `(columns, rows)`.
 pub fn size() -> (uint, uint) {
-    let cols: c_uint = 0;
-    let rows: c_uint = 0;
+    let cols: u32 = 0;
+    let rows: u32 = 0;
     unsafe {
         c::size(&cols, &rows)
     }
     (cols as uint, rows as uint)
-}
-
-#[link_name = "termios_wrapper"]
-extern mod c {
-    fn cooked () -> c_int;
-    fn cbreak () -> c_int;
-    fn raw () -> c_int;
-    fn echo (enable: c_int) -> c_int;
-
-    fn get() -> *c_void;
-    fn set(t: *c_void);
-
-    fn size(cols: *c_uint, rows: *c_uint);
 }

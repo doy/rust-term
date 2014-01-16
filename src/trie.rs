@@ -1,7 +1,8 @@
-use core::util::swap;
+use std::util::swap;
+use std::str;
 
 // XXX turn this into a radix trie, probably
-struct Trie<T> {
+pub struct Trie<T> {
     priv root: ~TrieNode<T>,
 }
 
@@ -61,17 +62,15 @@ impl<T> Trie<T> {
             self.root.value = Some(v);
         }
         else {
-            let bytes = str::as_bytes_slice(s);
-            self.insert_vec(
-                &mut self.root.children[bytes[0]],
-                bytes.tail(),
-                v
-            );
+            let bytes = s.as_bytes();
+            let loc = &mut self.root.children[bytes[0]];
+
+            Trie::insert_vec( loc, bytes.tail(), v);
         }
     }
 
-    pub fn find (&self, s: &str) -> &'self Option<T> {
-        let bytes = str::as_bytes_slice(s);
+    pub fn find<'r> (&'r self, s: &str) -> &'r Option<T> {
+        let bytes = s.as_bytes();
         let (prefix_length, node) = self.root.find_prefix_trie(bytes);
 
         if prefix_length == bytes.len() {
@@ -83,17 +82,17 @@ impl<T> Trie<T> {
     }
 
     pub fn has_prefix (&self, s: &str) -> bool {
-        let bytes = str::as_bytes_slice(s);
+        let bytes = s.as_bytes();
         let (prefix_length, node) = self.root.find_prefix_trie(bytes);
         if prefix_length == bytes.len() {
-            node.children.any(|child| { child.is_some() })
+            node.children.iter().any(|child| { child.is_some() })
         }
         else {
             false
         }
     }
 
-    fn insert_vec (&self, loc: &mut Option<~TrieNode<T>>, bytes: &[u8], v: T) {
+    pub fn insert_vec (loc: &mut Option<~TrieNode<T>>, bytes: &[u8], v: T) {
         let mut tmp = None;
         swap(&mut tmp, loc);
 
@@ -106,15 +105,16 @@ impl<T> Trie<T> {
             new.value = Some(v);
         }
         else {
-            self.insert_vec(&mut new.children[bytes[0]], bytes.tail(), v);
+            Trie::insert_vec(&mut new.children[bytes[0]], bytes.tail(), v);
         }
 
         *loc = Some(new);
     }
+
 }
 
 impl<T> TrieNode<T> {
-    fn find_prefix_trie (&self, bytes: &[u8]) -> (uint, &'self TrieNode<T>) {
+    fn find_prefix_trie<'r> (&'r self, bytes: &[u8]) -> (uint, &'r TrieNode<T>) {
         if bytes.len() == 0 {
             (0u, self)
         }
@@ -184,14 +184,14 @@ fn test_trie1 () {
 fn check_exists (trie: &Trie<int>, find: &str, value: int) {
     match trie.find(find) {
         &Some(v) => { assert!(v == value) }
-        &None    => { fail!(fmt!("didn't find %?", find)) }
+        &None    => { fail!(format!("didn't find {:?}", find)) }
     }
 }
 
 #[cfg(test)]
 fn check_not_exists (trie: &Trie<int>, find: &str) {
     match trie.find(find) {
-        &Some(_) => { fail!(fmt!("shouldn't find %?", find)) }
+        &Some(_) => { fail!(format!("shouldn't find {:?}", find)) }
         &None    => ()
     }
 }

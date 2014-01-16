@@ -1,4 +1,5 @@
 extern mod term;
+use std::iter;
 use term::hexes::Term;
 use term::hexes::{KeyCharacter,KeyEscape,KeyUp,KeyDown,KeyLeft,KeyRight,KeyF};
 use term::info::{Color,ColorRed};
@@ -9,9 +10,9 @@ fn draw_map (term: &mut Term, color: Option<Color>,
         Some(c) => term.fg_color(c),
         None    => term.reset_color(),
     }
-    for uint::range(0, rows) |i| {
+    for i in iter::range(0, rows) {
         term.move(0, i);
-        term.write(str::repeat(".", cols));
+        term.write(".".repeat(cols));
     }
 }
 
@@ -40,13 +41,17 @@ fn main () {
     let (cols, rows) = term::ios::size();
 
     {
+        println("Get a new term");
         let mut term = Term::new();
+        println("got term");
 
-        let mut (x, y) = (0u, 0u);
+        let mut x = 0u;
+        let mut y = 0u;
         let mut cursor = true;
         let mut color  = None;
 
         draw_map(&mut term, color, rows, cols);
+        println("map drawn");
 
         loop {
             draw_character(&mut term, None, x, y);

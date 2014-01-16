@@ -1,22 +1,24 @@
 extern mod term;
+use std::io::buffered::BufferedReader;
+use std::io;
 
 fn main () {
     term::info::init();
-    print(term::info::exit_attribute_mode());
+    println(term::info::exit_attribute_mode());
+    let mut reader = BufferedReader::new(io::stdin());
     loop {
-        print("Attribute? ");
-
-        let attr = io::stdin().read_line();
-
+        println("Attribute?");
+        let mut attr = reader.read_line().unwrap_or(~"");
+        attr = attr.replace("\n", "");
         if attr.starts_with("fg:") || attr.starts_with("bg:") {
             let set = if attr.starts_with("fg:") {
-                |c| { print(term::info::set_a_foreground(c)) }
+                |c| { println(term::info::set_a_foreground(c)) }
             }
             else {
-                |c| { print(term::info::set_a_background(c)) }
+                |c| { println(term::info::set_a_background(c)) }
             };
 
-            match attr.slice(3, attr.len()) {
+            match attr.slice_from(3) {
                 &"black"   => set(term::info::ColorBlack),
                 &"red"     => set(term::info::ColorRed),
                 &"green"   => set(term::info::ColorGreen),
@@ -25,22 +27,22 @@ fn main () {
                 &"magenta" => set(term::info::ColorMagenta),
                 &"cyan"    => set(term::info::ColorCyan),
                 &"white"   => set(term::info::ColorWhite),
-                _         => (),
+                _          => (),
             }
         }
         else {
             match attr {
-                ~"underline"   => print(term::info::enter_underline_mode()),
-                ~"standout"    => print(term::info::enter_standout_mode()),
-                ~"reverse"     => print(term::info::enter_reverse_mode()),
-                ~"bold"        => print(term::info::enter_bold_mode()),
-                ~"blink"       => print(term::info::enter_blink_mode()),
-                ~"reset"       => print(term::info::exit_attribute_mode()),
-                ~"reset_color" => print(term::info::orig_pair()),
+                ~"underline"   => println(term::info::enter_underline_mode()),
+                ~"standout"    => println(term::info::enter_standout_mode()),
+                ~"reverse"     => println(term::info::enter_reverse_mode()),
+                ~"bold"        => println(term::info::enter_bold_mode()),
+                ~"blink"       => println(term::info::enter_blink_mode()),
+                ~"reset"       => println(term::info::exit_attribute_mode()),
+                ~"reset_color" => println(term::info::orig_pair()),
                 ~""            => break,
-                _             => (),
+                _              => (),
             }
         }
     }
-    print(term::info::exit_attribute_mode());
+    println(term::info::exit_attribute_mode());
 }

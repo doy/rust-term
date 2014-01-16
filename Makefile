@@ -24,7 +24,7 @@ tests: $(TESTS)
 
 bin/%: test/%.rs tmp/built
 	@mkdir -p bin
-	$(RUSTC) --out-dir bin -L lib $<
+	$(RUSTC) --out-dir bin -L tmp -L lib $<
 
 tmp/built: $(MAIN_SOURCE) $(OTHER_SOURCES) tmp/libtermios_wrapper.a tmp/libio_helper.a
 	@mkdir -p lib
