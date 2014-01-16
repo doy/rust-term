@@ -1,4 +1,5 @@
 extern mod term;
+use std::os;
 
 fn main () {
     if os::args().len() < 2 {
@@ -8,7 +9,7 @@ fn main () {
     term::info::init();
     let attr: &str = os::args()[1];
     let escape = term::info::escape(attr).expect(
-        fmt!("%s is not supported on this terminal", attr)
+        format!("{:s} is not supported on this terminal", attr)
     );
     print(escape);
 }
