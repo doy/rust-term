@@ -21,6 +21,7 @@ enum Term {
     Screen256color,
     Rxvt,
     RxvtUnicode,
+    RxvtUnicode256color,
     Aterm,
     Eterm,
     Kterm,
@@ -612,18 +613,19 @@ fn escape_cap (cap: Capability) -> Option<~str> {
 
 fn name_to_term (name: &str) -> Option<Term> {
     match name {
-        "linux"           => Some(Linux),
-        "xterm"           => Some(Xterm),
-        "xterm-256color"  => Some(Xterm256color),
-        "screen"          => Some(Screen),
-        "screen-256color" => Some(Screen256color),
-        "rxvt"            => Some(Rxvt),
-        "rxvt-unicode"    => Some(RxvtUnicode),
-        "aterm"           => Some(Aterm),
-        "Eterm"           => Some(Eterm),
-        "kterm"           => Some(Kterm),
-        "gnome"           => Some(Gnome),
-        _                 => None,
+        "linux"                 => Some(Linux),
+        "xterm"                 => Some(Xterm),
+        "xterm-256color"        => Some(Xterm256color),
+        "screen"                => Some(Screen),
+        "screen-256color"       => Some(Screen256color),
+        "rxvt"                  => Some(Rxvt),
+        "rxvt-unicode"          => Some(RxvtUnicode),
+        "rxvt-unicode-256color" => Some(RxvtUnicode256color),
+        "aterm"                 => Some(Aterm),
+        "Eterm"                 => Some(Eterm),
+        "kterm"                 => Some(Kterm),
+        "gnome"                 => Some(Gnome),
+        _                       => None,
     }
 }
 
