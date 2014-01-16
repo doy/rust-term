@@ -61,9 +61,9 @@ pub fn echo (enable: bool) -> int {
  */
 pub fn preserve<T> (body: || -> T) -> T {
     let orig = unsafe { c::get() };
-    let returned = body();
-    unsafe { c::set(orig) };
-    returned
+    body.finally(|| {
+        unsafe { c::set(orig) };
+    })
 }
 
 /// Returns the size of the terminal, as `(columns, rows)`.

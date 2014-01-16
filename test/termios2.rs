@@ -7,19 +7,15 @@ fn loop_chars () {
     loop {
         let ch = reader.read_char();
         match ch {
-            Some(ch) => {
-                io::stdout().write_char(ch);
-                if ch == 'q' {
-                    break
-                }
-            }
-            _ => break
+            Some('q') => break,
+            Some(ch)  => io::stdout().write_char(ch),
+            _         => break
         }
     }
 }
 
 fn main () {
-    term::ios::preserve(proc() {
+    term::ios::preserve(|| {
         term::ios::raw();
         loop_chars();
     });
